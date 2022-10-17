@@ -23,7 +23,7 @@ jobs:
           mkdir resources
           cd ./resources
           touch ./application.yml
-          echo "spring.datasource.url=$APPLICATION" >> ./application.yml
+          echo "$APPLICATION" >> ./application.yml
           ls -al
         shell: bash
         env:
