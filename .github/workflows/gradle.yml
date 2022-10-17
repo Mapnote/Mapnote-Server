@@ -5,48 +5,6 @@ on:
     branches: [ "develop", "feature/MAP-41" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Make application.properties
-        run: |
-          cd ./src/main
-          mkdir resources
-          cd ./resources
-          touch ./application.properties
-          echo "spring.datasource.url=$DB_URL" >> ./application.properties
-          echo "spring.datasource.username=$DB_USER" >> ./application.properties
-          echo "spring.datasource.password=$DB_PW" >> ./application.properties
-          echo "spring.redis.host=$REDIS_HOST" >> ./application.properties
-          echo "spring.redis.port=$REDIS_PORT" >> ./application.properties
-          echo "spring.jwt.header=Authorization" >> ./application.properties
-          echo "spring.jwt.secret=$JWT_SECRETKEY" >> ./application.properties
-          echo "spring.datasource.driver-class-name= com.mysql.cj.jdbc.Driver" >> ./application.properties
-          echo "jpa.hibernate.ddl-auto=none" >> ./application.properties
-          echo "jpa.database=mysql" >> ./application.properties
-          echo "jpa.show-sql=true" >> ./application.properties
-          echo "jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect" >> ./application.properties
-        shell: bash
-        env:
-          DB_URL: ${{secrets.DB_URL}}
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PW: ${{secrets.DB_PW}}
-          REDIS_HOST: redis
-          REDIS_PORT: 6379
-          JWT_SECRETKEY: ${{secrets.JWT_SECRETKEY}}
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew build --exclude-task test
   test:
     runs-on: ubuntu-latest
     services:
@@ -65,26 +23,11 @@ jobs:
           mkdir resources
           cd ./resources
           touch ./application.properties
-          echo "spring.datasource.url=$DB_URL" >> ./application.properties
-          echo "spring.datasource.username=$DB_USER" >> ./application.properties
-          echo "spring.datasource.password=$DB_PW" >> ./application.properties
-          echo "spring.redis.host=$REDIS_HOST" >> ./application.properties
-          echo "spring.redis.port=$REDIS_PORT" >> ./application.properties
-          echo "spring.jwt.header=Authorization" >> ./application.properties
-          echo "spring.jwt.secret=$JWT_SECRETKEY" >> ./application.properties
-          echo "spring.datasource.driver-class-name= com.mysql.cj.jdbc.Driver" >> ./application.properties
-          echo "jpa.hibernate.ddl-auto=none" >> ./application.properties
-          echo "jpa.database=mysql" >> ./application.properties
-          echo "jpa.show-sql=true" >> ./application.properties
-          echo "jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect" >> ./application.properties
+          echo "spring.datasource.url=$APPLICATION" >> ./application.properties
+          ls -al
         shell: bash
         env:
-          DB_URL: ${{secrets.DB_URL}}
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PW: ${{secrets.DB_PW}}
-          REDIS_HOST: redis
-          REDIS_PORT: 6379
-          JWT_SECRETKEY: ${{secrets.JWT_SECRETKEY}}
+          APPLICATION: ${{APPLICATION}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
