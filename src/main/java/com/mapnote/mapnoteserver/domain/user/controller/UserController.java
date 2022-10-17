@@ -47,4 +47,11 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
+  @PostMapping("/email")
+  public ResponseEntity<Void> emailCheck(@Validated @RequestBody UserRequest.Email emailRequest) {
+    userService.checkEmail(emailRequest);
+
+    return ResponseEntity.noContent().build();
+  }
+
 }

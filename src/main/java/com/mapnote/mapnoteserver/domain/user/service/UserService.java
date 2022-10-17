@@ -4,8 +4,10 @@ package com.mapnote.mapnoteserver.domain.user.service;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
+import com.mapnote.mapnoteserver.domain.common.exception.ConflictException;
 import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
+import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.Email;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse;
 import com.mapnote.mapnoteserver.domain.user.entity.Authority;
 import com.mapnote.mapnoteserver.domain.user.entity.User;
@@ -134,6 +136,11 @@ public class UserService {
     redisTemplate.opsForValue()
         .set(logout.getAccessToken(), "logout token", expiration, TimeUnit.MILLISECONDS);
 
+  }
+
+  public void checkEmail(Email emailRequest) {
+    userRepository.findByEmail(emailRequest.getEmail())
+        .ifPresent((email) -> { throw new ConflictException("이미 존재하는 이메일입니다.");});
   }
 
 }
