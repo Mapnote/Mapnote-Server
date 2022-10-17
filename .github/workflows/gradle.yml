@@ -2,23 +2,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "develop", "feature/MAP-40" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew build --exclude-task test
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +14,16 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
+      - name: Make application.properties
+        run: |
+          cd ./src/main
+          mkdir resources
+          cd ./resources
+          touch ./application-dev.properties
+          echo $DB_SETTING >> ./application.properties
+        shell: bash
+        env:
+          DB_SETTING: ${{secrets.DB_SETTING}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
