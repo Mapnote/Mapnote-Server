@@ -25,7 +25,7 @@ jobs:
           cat ./application.properties
         shell: bash
         env:
-          DB_SETTING: ${{DB_SETTING}}
+          DB_SETTING: ${{secrets.DB_SETTING}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
