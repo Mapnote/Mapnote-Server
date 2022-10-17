@@ -23,7 +23,6 @@ jobs:
           echo "spring.datasource.url=$DB_URL" >> ./application.properties
           echo "spring.datasource.username=$DB_USER" >> ./application.properties
           echo "spring.datasource.password=$DB_PW" >> ./application.properties
-          echo "spring.datasource.url=$DB_URL" >> ./application.properties
           echo "spring.datasource.driver-class-name= com.mysql.cj.jdbc.Driver" >> ./application.properties
           echo "jpa.hibernate.ddl-auto=none" >> ./application.properties
           ls -al
