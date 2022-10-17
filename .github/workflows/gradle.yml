@@ -20,18 +20,12 @@ jobs:
           mkdir resources
           cd ./resources
           touch ./application.properties
-          echo "spring.datasource.url=$DB_URL" >> ./application.properties
-          echo "spring.datasource.username=$DB_USER" >> ./application.properties
-          echo "spring.datasource.password=$DB_PW" >> ./application.properties
-          echo "spring.datasource.driver-class-name= com.mysql.cj.jdbc.Driver" >> ./application.properties
-          echo "jpa.hibernate.ddl-auto=none" >> ./application.properties
+          echo "DB_SETTING" >> ./application.properties
           ls -al
           cat ./application.properties
         shell: bash
         env:
-          DB_URL: ${{secrets.DB_URL}}
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PW: ${{secrets.DB_PW}}
+          DB_SETTING: ${{DB_SETTING}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
