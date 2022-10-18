@@ -2,11 +2,14 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "develop", "feature/MAP-40" ]
+    branches: [ "develop", "feature/MAP-41" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 11
@@ -19,23 +22,21 @@ jobs:
           cd ./src/main
           mkdir resources
           cd ./resources
-          touch ./application.properties
-          echo "spring.datasource.url=$DB_URL" >> ./application.properties
-          echo "spring.datasource.username=$DB_USER" >> ./application.properties
-          echo "spring.datasource.password=$DB_PW" >> ./application.properties
-          echo "spring.datasource.driver-class-name= com.mysql.cj.jdbc.Driver" >> ./application.properties
-          echo "jpa.hibernate.ddl-auto=none" >> ./application.properties
+          touch ./application.yml
+          echo "$APPLICATION" >> ./application.yml
+          ls -al
         shell: bash
         env:
-          DB_URL: ${{secrets.DB_URL}}
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PW: ${{secrets.DB_PW}}
+          APPLICATION: ${{secrets.APPLICATION}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build --exclude-task test
   test:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 11
@@ -48,17 +49,12 @@ jobs:
           cd ./src/main
           mkdir resources
           cd ./resources
-          touch ./application.properties
-          echo "spring.datasource.url=$DB_URL" >> ./application.properties
-          echo "spring.datasource.username=$DB_USER" >> ./application.properties
-          echo "spring.datasource.password=$DB_PW" >> ./application.properties
-          echo "spring.datasource.driver-class-name= com.mysql.cj.jdbc.Driver" >> ./application.properties
-          echo "jpa.hibernate.ddl-auto=none" >> ./application.properties
+          touch ./application.yml
+          echo "$APPLICATION" >> ./application.yml
+          ls -al
         shell: bash
         env:
-          DB_URL: ${{secrets.DB_URL}}
-          DB_USER: ${{secrets.DB_USER}}
-          DB_PW: ${{secrets.DB_PW}}
+          APPLICATION: ${{secrets.APPLICATION}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
