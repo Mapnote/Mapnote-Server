@@ -49,8 +49,8 @@ public class User extends BaseEntity {
   @Column(name = "name")
   private String name;
 
-  @Column(name = "range")
-  private Long range;
+  @Column(name = "boundary")
+  private Long boundary;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Memo> memos = new ArrayList<>();

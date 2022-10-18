@@ -3,6 +3,7 @@ package com.mapnote.mapnoteserver.domain.common.exception;
 import com.mapnote.mapnoteserver.domain.common.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -32,4 +33,10 @@ public class ExceptionAdvice {
   public ResponseEntity<ErrorResponse> handleConflictException(ConflictException e) {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(e.getMessage()));
   }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+    return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+  }
+
 }
