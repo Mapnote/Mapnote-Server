@@ -9,9 +9,11 @@ import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.Email;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse;
+import com.mapnote.mapnoteserver.domain.user.dto.UserResponse.UserDetailResponse;
 import com.mapnote.mapnoteserver.domain.user.entity.Authority;
 import com.mapnote.mapnoteserver.domain.user.entity.User;
 import com.mapnote.mapnoteserver.domain.user.repository.UserRepository;
+import com.mapnote.mapnoteserver.domain.user.util.UserConverter;
 import com.mapnote.mapnoteserver.security.jwt.JwtExpiration;
 import com.mapnote.mapnoteserver.security.jwt.JwtTokenProvider;
 import java.util.UUID;
@@ -143,4 +145,9 @@ public class UserService {
         .ifPresent((email) -> { throw new ConflictException("이미 존재하는 이메일입니다.");});
   }
 
+  public UserDetailResponse getUserDetail(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+    return UserConverter.toUserDetail(user);
+  }
 }
