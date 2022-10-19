@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,6 +61,12 @@ public class UserController {
   public ResponseEntity<UserResponse.UserDetailResponse> getUserDetail(@PathVariable UUID userId) {
     UserResponse.UserDetailResponse userDetail = userService.getUserDetail(userId);
     return ResponseEntity.ok(userDetail);
+  }
+
+  @PutMapping("/newPassword")
+  public ResponseEntity<UserResponse.UserDetailResponse> changePassword(@Validated @RequestBody UserRequest.NewPassword passwordRequest) {
+    userService.changePassword(passwordRequest);
+    return ResponseEntity.ok().build();
   }
 
 }
