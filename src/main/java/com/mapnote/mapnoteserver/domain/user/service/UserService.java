@@ -156,9 +156,9 @@ public class UserService {
   }
 
   @Transactional
-  public void changePassword(NewPassword passwordRequest) {
+  public void changePassword(UUID userId, NewPassword passwordRequest) {
 
-    User user = userRepository.findByEmail(passwordRequest.getEmail())
+    User user = userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
 
     if(!user.matchPassword(passwordRequest.getOldPassword())) throw new BadRequestException("기존 패스워드가 잘못됐습니다.");
