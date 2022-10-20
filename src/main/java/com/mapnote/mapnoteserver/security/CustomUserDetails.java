@@ -4,6 +4,7 @@ import com.mapnote.mapnoteserver.domain.user.entity.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,12 +19,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CustomUserDetails implements UserDetails {
 
+  private UUID id;
+
   private String email;
 
   @Builder.Default
   private List<String> authorities = new ArrayList<>();
 
-  public CustomUserDetails(String email, List<String> authorities) {
+  public CustomUserDetails(UUID id, String email, List<String> authorities) {
+    this.id = id;
     this.email = email;
     this.authorities = authorities;
   }
@@ -33,6 +37,10 @@ public class CustomUserDetails implements UserDetails {
     return authorities.stream()
         .map(SimpleGrantedAuthority::new)
         .collect(Collectors.toList());
+  }
+
+  public UUID getId() {
+    return id;
   }
 
   @Override
@@ -67,6 +75,7 @@ public class CustomUserDetails implements UserDetails {
 
   public static CustomUserDetails of(User user) {
     return CustomUserDetails.builder()
+        .id(user.getId())
         .email(user.getEmail())
         .authorities(user.getAuthorities())
         .build();
