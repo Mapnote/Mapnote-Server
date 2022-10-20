@@ -167,4 +167,12 @@ public class UserService {
     user.changePassword(passwordRequest.getNewPassword());
     userRepository.save(user);
   }
+
+  @Transactional
+  public void delete(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+
+    userRepository.delete(user);
+  }
 }
