@@ -11,6 +11,7 @@ import java.net.URI;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,6 +76,12 @@ public class UserController {
       @CurrentUser CustomUserDetails user) {
     userService.changePassword(user.getId(), passwordRequest);
     return ResponseEntity.ok().build();
+  }
+
+  @DeleteMapping("/{userId}")
+  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
+    userService.delete(userId);
+    return ResponseEntity.noContent().build();
   }
 
 }
