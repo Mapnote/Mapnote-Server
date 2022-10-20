@@ -8,20 +8,20 @@ import com.mapnote.mapnoteserver.domain.common.exception.ConflictException;
 import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.Email;
+import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.NewPassword;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse.UserDetailResponse;
 import com.mapnote.mapnoteserver.domain.user.entity.Authority;
 import com.mapnote.mapnoteserver.domain.user.entity.User;
 import com.mapnote.mapnoteserver.domain.user.repository.UserRepository;
+import com.mapnote.mapnoteserver.domain.user.util.PasswordEncrypter;
 import com.mapnote.mapnoteserver.domain.user.util.UserConverter;
 import com.mapnote.mapnoteserver.security.jwt.JwtExpiration;
 import com.mapnote.mapnoteserver.security.jwt.JwtTokenProvider;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,39 +46,41 @@ public class UserService {
     this.redisTemplate = redisTemplate;
   }
 
+  @Transactional
   public UUID signUp(UserRequest.SignUp signUp) {
 
     User user = User.builder()
         .email(signUp.getEmail())
-        .password(signUp.getPassword())
+        .password(PasswordEncrypter.encrypt(signUp.getPassword()))
         .name(signUp.getName())
         .build();
 
-    Authority.addAdminAuth(user);
+    Authority.addUserAuth(user);
 
     userRepository.save(user);
 
     return user.getId();
   }
 
+  @Transactional
   public UserResponse.TokenResponse login(UserRequest.Login login) {
     userRepository.findByEmail(login.getEmail())
         .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다."));
 
-    // Login id, pw 기반 Authentication 객체 생성
-    UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
-
-    // 검증
-    Authentication authentication = authenticationManagerBuilder.getObject()
-        .authenticate(authenticationToken);
+//    // Login id, pw 기반 Authentication 객체 생성
+//    UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
+//
+//    // 검증
+//    Authentication authentication = authenticationManagerBuilder.getObject()
+//        .authenticate(authenticationToken);
 
     // 인증 정보 기반 JWT 토큰 생성
-    String accessToken = jwtTokenProvider.generateAccessToken(authentication.getName());
-    String refreshToken = jwtTokenProvider.generateRefreshToken(authentication.getName());
+    String accessToken = jwtTokenProvider.generateAccessToken(login.getEmail());
+    String refreshToken = jwtTokenProvider.generateRefreshToken(login.getEmail());
 
     // refreshToken redis 에 저장
     redisTemplate.opsForValue()
-        .set("RefreshToken:" + authentication.getName(), refreshToken);
+        .set("RefreshToken:" + login.getEmail(), refreshToken);
 
     return UserResponse.TokenResponse.builder()
         .grantType(BEARER_TYPE)
@@ -88,6 +90,7 @@ public class UserService {
         .build();
   }
 
+  @Transactional
   public UserResponse.TokenResponse reissue(UserRequest.Reissue reissue) {
 
     // refresh token 검증 (유효기간)
@@ -120,6 +123,7 @@ public class UserService {
         .build();
   }
 
+  @Transactional
   public void logout(UserRequest.Logout logout) {
 
     // token 검증
@@ -149,5 +153,18 @@ public class UserService {
     User user = userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
     return UserConverter.toUserDetail(user);
+  }
+
+  @Transactional
+  public void changePassword(NewPassword passwordRequest) {
+
+    User user = userRepository.findByEmail(passwordRequest.getEmail())
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+
+    if(!user.matchPassword(passwordRequest.getOldPassword())) throw new BadRequestException("기존 패스워드가 잘못됐습니다.");
+    if(user.matchPassword(passwordRequest.getNewPassword())) throw new ConflictException("기존의 패스워드과 같습니다.");
+
+    user.changePassword(passwordRequest.getNewPassword());
+    userRepository.save(user);
   }
 }
