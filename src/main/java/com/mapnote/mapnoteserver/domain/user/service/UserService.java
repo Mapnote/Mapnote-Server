@@ -64,8 +64,10 @@ public class UserService {
 
   @Transactional
   public UserResponse.TokenResponse login(UserRequest.Login login) {
-    userRepository.findByEmail(login.getEmail())
+    User user = userRepository.findByEmail(login.getEmail())
         .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다."));
+
+    if(!user.matchPassword(login.getPassword())) throw new BadRequestException("잘못된 비밀번호를 입력하셨습니다.");
 
 //    // Login id, pw 기반 Authentication 객체 생성
 //    UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
