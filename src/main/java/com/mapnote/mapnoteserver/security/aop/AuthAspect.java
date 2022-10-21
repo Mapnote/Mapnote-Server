@@ -1,9 +1,10 @@
 package com.mapnote.mapnoteserver.security.aop;
 
-import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
+import com.mapnote.mapnoteserver.domain.user.entity.User;
 import com.mapnote.mapnoteserver.domain.user.repository.UserRepository;
 import com.mapnote.mapnoteserver.security.jwt.JwtTokenProvider;
 import javax.servlet.http.HttpServletRequest;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.http.HttpStatus;
@@ -28,12 +29,13 @@ public class AuthAspect {
   }
 
   @Around("@annotation(com.mapnote.mapnoteserver.security.aop.Auth)")
-  public void validateToken() {
+  public Object validateToken(final ProceedingJoinPoint pjp) throws Throwable {
     String token = servletRequest.getHeader(HEADER);
 
     String userEmail = jwtTokenProvider.getUserEmail(token);
-    userRepository.findByEmail(userEmail)
+    User user = userRepository.findByEmail(userEmail)
         .orElseThrow(() -> new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
+    return pjp.proceed();
   }
 
 }
