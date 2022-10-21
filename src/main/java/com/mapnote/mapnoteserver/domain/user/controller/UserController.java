@@ -4,6 +4,9 @@ import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse.TokenResponse;
 import com.mapnote.mapnoteserver.domain.user.service.UserService;
+import com.mapnote.mapnoteserver.security.CustomUserDetails;
+import com.mapnote.mapnoteserver.security.aop.Auth;
+import com.mapnote.mapnoteserver.security.aop.CurrentUser;
 import java.net.URI;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -45,12 +48,14 @@ public class UserController {
     return ResponseEntity.ok(reissueResponse);
   }
 
+  @Auth
   @PostMapping("/logout")
   public ResponseEntity<Void> logout(@Validated @RequestBody UserRequest.Logout logoutRequest) {
     userService.logout(logoutRequest);
     return ResponseEntity.noContent().build();
   }
 
+  @Auth
   @PostMapping("/email")
   public ResponseEntity<Void> emailCheck(@Validated @RequestBody UserRequest.Email emailRequest) {
     userService.checkEmail(emailRequest);
@@ -58,21 +63,25 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
-  @GetMapping("/{userId}")
-  public ResponseEntity<UserResponse.UserDetailResponse> getUserDetail(@PathVariable UUID userId) {
-    UserResponse.UserDetailResponse userDetail = userService.getUserDetail(userId);
+  @Auth
+  @GetMapping("")
+  public ResponseEntity<UserResponse.UserDetailResponse> getUserDetail(@CurrentUser CustomUserDetails user) {
+    UserResponse.UserDetailResponse userDetail = userService.getUserDetail(user.getId());
     return ResponseEntity.ok(userDetail);
   }
 
+  @Auth
   @PutMapping("/newPassword")
-  public ResponseEntity<UserResponse.UserDetailResponse> changePassword(@Validated @RequestBody UserRequest.NewPassword passwordRequest) {
-    userService.changePassword(passwordRequest);
+  public ResponseEntity<UserResponse.UserDetailResponse> changePassword(@Validated @RequestBody UserRequest.NewPassword passwordRequest,
+      @CurrentUser CustomUserDetails user) {
+    userService.changePassword(user.getId(), passwordRequest);
     return ResponseEntity.ok().build();
   }
 
-  @DeleteMapping("/{userId}")
-  public ResponseEntity<Void> delete(@PathVariable UUID userId) {
-    userService.delete(userId);
+  @Auth
+  @DeleteMapping("")
+  public ResponseEntity<Void> delete(@CurrentUser CustomUserDetails user) {
+    userService.delete(user.getId());
     return ResponseEntity.noContent().build();
   }
 

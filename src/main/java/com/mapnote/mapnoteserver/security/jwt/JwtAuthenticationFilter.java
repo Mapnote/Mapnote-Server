@@ -3,6 +3,7 @@ package com.mapnote.mapnoteserver.security.jwt;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.mapnote.mapnoteserver.security.CustomUserDetailService;
+import com.mapnote.mapnoteserver.security.CustomUserDetails;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -50,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String isLogout = (String) redisTemplate.opsForValue().get(accessToken);
         // 토큰이 유효함
         if(isEmpty(isLogout)) {
-          UserDetails userDetails = customUserDetailService.loadUserByUsername(userEmail);
+          CustomUserDetails userDetails = customUserDetailService.loadUserByUsername(userEmail);
           validateAccessToken(accessToken);
           setSecurityContext(request, userDetails);
         }
@@ -65,10 +66,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private String getAccessToken(HttpServletRequest request) {
     String header = request.getHeader("Authorization");
-
-    if(StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-      return header.substring(7);
-    }
+    if(StringUtils.hasText(header)) return header;
     return null;
   }
 

@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {
@@ -19,7 +20,8 @@ public class CustomUserDetailService implements UserDetailsService {
   }
 
   @Override
-  public UserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
+  @Transactional
+  public CustomUserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
     // TODO : 예외처리 다른 것으로 변경
     return userRepository.findByEmail(userEmail)
         .map(CustomUserDetails::of)

@@ -55,7 +55,7 @@ public class JwtTokenProvider {
 
   public Boolean validateToken(String token) {
     try {
-      Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+      Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build().parseClaimsJws(token);
       return !isTokenExpired(token);
     } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
       log.info("Invalid JWT Token", e);
