@@ -1,5 +1,6 @@
 package com.mapnote.mapnoteserver.domain.user.entity;
 
+import static java.util.Objects.isNull;
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
 import com.mapnote.mapnoteserver.domain.common.entity.BaseEntity;
@@ -7,6 +8,7 @@ import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
 import com.mapnote.mapnoteserver.domain.memo.entity.Memo;
 import com.mapnote.mapnoteserver.domain.user.util.PasswordEncrypter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +39,8 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class User extends BaseEntity {
+
+  private static final int[] boundaryList = {2, 4, 6, 8 , 10};
 
   @Id
   @GeneratedValue(generator = "uuid2")
@@ -87,8 +91,27 @@ public class User extends BaseEntity {
     setPassword(PasswordEncrypter.encrypt(password));
   }
 
+  public void changeName(String name) {
+    setName(name);
+  }
+
+  public void changeBoundary(Long boundary) {
+    setBoundary(boundary);
+  }
+
   private void setPassword(String password) {
     if(isBlank(password)) throw new BadRequestException("잘못된 형식의 패스워드가 입력됬습니다.");
     this.password = password;
+  }
+
+  private void setName(String name) {
+    if(isBlank(name)) throw new BadRequestException("잘못된 형식의 이름이 입력되었습니다.");
+    this.name = name;
+  }
+
+  private void setBoundary(Long boundary) {
+    if(isNull(boundary)) throw new BadRequestException("NULL 값은 설정할 수 없습니다.");
+    if(Arrays.stream(boundaryList).noneMatch(b -> boundary == b)) throw new BadRequestException("잘못된 값의 반경이 입력되었습니다.");
+    this.boundary = boundary;
   }
 }
