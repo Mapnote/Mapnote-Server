@@ -10,6 +10,7 @@ import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.ChangeInfo;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.Email;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.NewPassword;
+import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.RenewalPassword;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse.UserDetailResponse;
 import com.mapnote.mapnoteserver.domain.user.entity.Authority;
@@ -187,5 +188,17 @@ public class UserService {
     user.changeName(changeInfo.getName());
     user.changeBoundary(changeInfo.getBoundary());
     return UserConverter.toUserDetail(userRepository.save(user));
+  }
+
+  @Transactional
+  public void renewalPassword(RenewalPassword renewalPassword) {
+
+    User user = userRepository.findByEmail(renewalPassword.getEmail())
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+
+    if(user.matchPassword(renewalPassword.getNewPassword())) throw new ConflictException("같은 비밀번호로 비밀번호를 수정할 수 없습니다.");
+
+    user.changePassword(renewalPassword.getNewPassword());
+    userRepository.save(user);
   }
 }
