@@ -74,4 +74,12 @@ public class UserRequest {
     private String newPassword;
   }
 
+  @Getter
+  public static class ChangeInfo {
+    private String name;
+
+    private Long boundary;
+
+  }
+
 }

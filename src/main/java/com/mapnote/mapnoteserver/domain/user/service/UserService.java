@@ -7,6 +7,7 @@ import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
 import com.mapnote.mapnoteserver.domain.common.exception.ConflictException;
 import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
+import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.ChangeInfo;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.Email;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.NewPassword;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse;
@@ -176,5 +177,15 @@ public class UserService {
         .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
 
     userRepository.delete(user);
+  }
+
+  @Transactional
+  public UserDetailResponse changeInfo(ChangeInfo changeInfo, UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+
+    user.changeName(changeInfo.getName());
+    user.changeBoundary(changeInfo.getBoundary());
+    return UserConverter.toUserDetail(userRepository.save(user));
   }
 }
