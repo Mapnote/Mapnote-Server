@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,10 +71,19 @@ public class UserController {
 
   @Auth
   @PutMapping("/newPassword")
-  public ResponseEntity<UserResponse.UserDetailResponse> changePassword(@Validated @RequestBody UserRequest.NewPassword passwordRequest,
+  public ResponseEntity<Void> changePassword(@Validated @RequestBody UserRequest.NewPassword passwordRequest,
       @CurrentUser CustomUserDetails user) {
     userService.changePassword(user.getId(), passwordRequest);
     return ResponseEntity.ok().build();
+  }
+
+  @Auth
+  @PutMapping("")
+  public ResponseEntity<UserResponse.UserDetailResponse> changeInfo(@Validated @RequestBody UserRequest.ChangeInfo changeInfo,
+      @CurrentUser CustomUserDetails user) {
+
+    UserResponse.UserDetailResponse userDetail = userService.changeInfo(changeInfo, user.getId());
+    return ResponseEntity.ok(userDetail);
   }
 
   @Auth
