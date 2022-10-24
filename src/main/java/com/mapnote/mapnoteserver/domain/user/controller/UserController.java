@@ -62,6 +62,14 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
+  @PostMapping("/password")
+  public ResponseEntity<Void> renewalPassword(@Validated @RequestBody UserRequest.RenewalPassword renewalPassword) {
+
+    userService.renewalPassword(renewalPassword);
+
+    return ResponseEntity.ok().build();
+  }
+
   @Auth
   @GetMapping("")
   public ResponseEntity<UserResponse.UserDetailResponse> getUserDetail(@CurrentUser CustomUserDetails user) {

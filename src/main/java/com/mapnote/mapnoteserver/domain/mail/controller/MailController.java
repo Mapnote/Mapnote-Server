@@ -2,9 +2,9 @@ package com.mapnote.mapnoteserver.domain.mail.controller;
 
 import com.mapnote.mapnoteserver.domain.mail.dto.MailRequest;
 import com.mapnote.mapnoteserver.domain.mail.service.MailService;
-import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +20,9 @@ public class MailController {
     this.mailService = mailService;
   }
 
-  @PostMapping("/signup")
-  public ResponseEntity<String> certificationSignup(@Validated @RequestBody MailRequest mailRequest) {
-    String authenticationString = mailService.sendMail(mailRequest);
+  @PostMapping("/{type}")
+  public ResponseEntity<String> certificationSignup(@Validated @RequestBody MailRequest mailRequest, @PathVariable String type) {
+    String authenticationString = mailService.sendMail(mailRequest, type);
     return ResponseEntity.ok(authenticationString);
   }
 

@@ -27,14 +27,14 @@ public class MailService {
   }
 
   @Transactional
-  public String sendMail(MailRequest mailRequest) {
+  public String sendMail(MailRequest mailRequest, String type) {
 
     String authenticationString = AuthenticationString.generateRandomString();
 
     String to = mailRequest.getEmail();
 
-    String title = MailBody.signupMailTitle();
-    String content = MailBody.signupMailBody(authenticationString);
+    String title = MailBody.getMailTitle(type);
+    String content = MailBody.getMailBody(type, authenticationString);
 
     try {
       MimeMessage message = mailSender.createMimeMessage();
