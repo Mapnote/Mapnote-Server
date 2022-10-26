@@ -5,6 +5,7 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 
 import com.mapnote.mapnoteserver.domain.common.entity.BaseEntity;
 import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
+import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
 import com.mapnote.mapnoteserver.domain.memo.entity.Memo;
 import com.mapnote.mapnoteserver.domain.user.util.PasswordEncrypter;
 import java.util.ArrayList;
@@ -100,18 +101,18 @@ public class User extends BaseEntity {
   }
 
   private void setPassword(String password) {
-    if(isBlank(password)) throw new BadRequestException("잘못된 형식의 패스워드가 입력됬습니다.");
+    if(isBlank(password)) throw new BadRequestException("잘못된 형식의 패스워드가 입력됬습니다.", ErrorCode.WRONG_PASSWORD_INPUT);
     this.password = password;
   }
 
   private void setName(String name) {
-    if(isBlank(name)) throw new BadRequestException("잘못된 형식의 이름이 입력되었습니다.");
+    if(isBlank(name)) throw new BadRequestException("잘못된 형식의 이름이 입력되었습니다.", ErrorCode.WRONG_INPUT_INVALID);
     this.name = name;
   }
 
   private void setBoundary(Long boundary) {
-    if(isNull(boundary)) throw new BadRequestException("NULL 값은 설정할 수 없습니다.");
-    if(Arrays.stream(boundaryList).noneMatch(b -> boundary == b)) throw new BadRequestException("잘못된 값의 반경이 입력되었습니다.");
+    if(isNull(boundary)) throw new BadRequestException("NULL 값은 설정할 수 없습니다.", ErrorCode.WRONG_INPUT_INVALID);
+    if(Arrays.stream(boundaryList).noneMatch(b -> boundary == b)) throw new BadRequestException("잘못된 값의 반경이 입력되었습니다.", ErrorCode.WRONG_INPUT_INVALID);
     this.boundary = boundary;
   }
 }
