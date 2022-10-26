@@ -3,40 +3,61 @@ package com.mapnote.mapnoteserver.domain.common.exception;
 import com.mapnote.mapnoteserver.domain.common.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 public class ExceptionAdvice {
-  @ExceptionHandler(NotFoundException.class)
-  public ResponseEntity<Void> handleNotFoundException(NotFoundException e) {
-    return ResponseEntity.notFound().build();
+
+  // @Validated - binding error
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getBindingResult());
+    return ResponseEntity.badRequest().body(response);
   }
 
-  @ExceptionHandler(UnAuthorizedException.class)
-  public ResponseEntity<ErrorResponse> handleUnAuthorizedException(UnAuthorizedException e) {
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(e.getMessage()));
+  @ExceptionHandler(BindException.class)
+  public ResponseEntity<ErrorResponse> handleBindException(BindException e) {
+    ErrorResponse response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE, e.getBindingResult());
+    return ResponseEntity.badRequest().body(response);
   }
 
-  @ExceptionHandler(BadRequestException.class)
-  public ResponseEntity<ErrorResponse> badRequestException(BadRequestException e) {
-    return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+  // enum type 일치 하지 않아 binding 못하는 경우 발생
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+    ErrorResponse response = ErrorResponse.of(e);
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  // 지원하지 않은 HTTP method 호출 할 경우 발생
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+    final ErrorResponse response = ErrorResponse.of(ErrorCode.METHOD_NOT_ALLOWED);
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+    ErrorResponse response = ErrorResponse.of(ErrorCode.HANDLE_ACCESS_DENIED);
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+  }
+
+  @ExceptionHandler(BusinessException.class)
+  public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+    ErrorCode errorCode = e.getErrorCode();
+    ErrorResponse response = ErrorResponse.of(errorCode);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
   }
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleRuntimeException(Exception e) {
-    return ResponseEntity.internalServerError().body(new ErrorResponse(e.getMessage()));
-  }
-
-  @ExceptionHandler(ConflictException.class)
-  public ResponseEntity<ErrorResponse> handleConflictException(ConflictException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(e.getMessage()));
-  }
-
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
-    return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+    ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
+    return ResponseEntity.internalServerError().body(response);
   }
 
 }

@@ -5,6 +5,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
 import com.mapnote.mapnoteserver.domain.common.exception.ConflictException;
+import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
 import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest.ChangeInfo;
@@ -67,9 +68,9 @@ public class UserService {
   @Transactional
   public UserResponse.TokenResponse login(UserRequest.Login login) {
     User user = userRepository.findByEmail(login.getEmail())
-        .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException("해당 유저는 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
 
-    if(!user.matchPassword(login.getPassword())) throw new BadRequestException("잘못된 비밀번호를 입력하셨습니다.");
+    if(!user.matchPassword(login.getPassword())) throw new BadRequestException("잘못된 비밀번호를 입력하셨습니다.", ErrorCode.WRONG_PASSWORD_INPUT);
 
 //    // Login id, pw 기반 Authentication 객체 생성
 //    UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();
@@ -98,7 +99,7 @@ public class UserService {
   public UserResponse.TokenResponse reissue(UserRequest.Reissue reissue) {
 
     // refresh token 검증 (유효기간)
-    if(!jwtTokenProvider.validateToken(reissue.getRefreshToken())) throw new BadRequestException("Refresh Token 정보가 유효하지 않습니다.");
+    if(!jwtTokenProvider.validateToken(reissue.getRefreshToken())) throw new BadRequestException("Refresh Token 정보가 유효하지 않습니다.", ErrorCode.UNAUTHORIZED_REQUEST);
 
     // access Token 에서 email 추출
     String userEmail = jwtTokenProvider.getUserEmail(reissue.getAccessToken());
@@ -108,8 +109,8 @@ public class UserService {
     String refreshToken = (String) redisTemplate.opsForValue().get("RefreshToken:" + userEmail);
 
     // 로그아웃 된 토큰인지 확인
-    if(isEmpty(refreshToken)) throw new BadRequestException("Refresh Token 정보가 유효하지 않습니다.");
-    if(!refreshToken.equals(reissue.getRefreshToken())) throw new BadRequestException("Refresh Token 정보가 일치하지 않습니다.");
+    if(isEmpty(refreshToken)) throw new BadRequestException("Refresh Token 정보가 유효하지 않습니다.", ErrorCode.UNAUTHORIZED_REQUEST);
+    if(!refreshToken.equals(reissue.getRefreshToken())) throw new BadRequestException("Refresh Token 정보가 일치하지 않습니다.", ErrorCode.UNAUTHORIZED_REQUEST);
 
     // 토큰 새로 생성
     String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
@@ -131,7 +132,7 @@ public class UserService {
   public void logout(UserRequest.Logout logout) {
 
     // token 검증
-    if(!jwtTokenProvider.validateToken(logout.getAccessToken())) throw new BadRequestException("Access Token 정보가 잘못되었습니다.");
+    if(!jwtTokenProvider.validateToken(logout.getAccessToken())) throw new BadRequestException("Access Token 정보가 잘못되었습니다.", ErrorCode.UNAUTHORIZED_REQUEST);
 
     // token 에서 email 추출
     String userEmail = jwtTokenProvider.getUserEmail(logout.getAccessToken());
@@ -150,12 +151,12 @@ public class UserService {
 
   public void checkEmail(Email emailRequest) {
     userRepository.findByEmail(emailRequest.getEmail())
-        .ifPresent((email) -> { throw new ConflictException("이미 존재하는 이메일입니다.");});
+        .ifPresent((email) -> { throw new ConflictException("이미 존재하는 이메일입니다.", ErrorCode.EMAIL_DUPLICATION);});
   }
 
   public UserDetailResponse getUserDetail(UUID userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
     return UserConverter.toUserDetail(user);
   }
 
@@ -163,10 +164,10 @@ public class UserService {
   public void changePassword(UUID userId, NewPassword passwordRequest) {
 
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
 
-    if(!user.matchPassword(passwordRequest.getOldPassword())) throw new BadRequestException("기존 패스워드가 잘못됐습니다.");
-    if(user.matchPassword(passwordRequest.getNewPassword())) throw new ConflictException("기존의 패스워드과 같습니다.");
+    if(!user.matchPassword(passwordRequest.getOldPassword())) throw new BadRequestException("기존 패스워드가 잘못됐습니다.", ErrorCode.WRONG_PASSWORD_INPUT);
+    if(user.matchPassword(passwordRequest.getNewPassword())) throw new ConflictException("기존의 패스워드과 같습니다.", ErrorCode.PASSWORD_DUPLICATION);
 
     user.changePassword(passwordRequest.getNewPassword());
     userRepository.save(user);
@@ -175,7 +176,7 @@ public class UserService {
   @Transactional
   public void delete(UUID userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
 
     userRepository.delete(user);
   }
@@ -183,7 +184,7 @@ public class UserService {
   @Transactional
   public UserDetailResponse changeInfo(ChangeInfo changeInfo, UUID userId) {
     User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
 
     user.changeName(changeInfo.getName());
     user.changeBoundary(changeInfo.getBoundary());
@@ -194,9 +195,9 @@ public class UserService {
   public void renewalPassword(RenewalPassword renewalPassword) {
 
     User user = userRepository.findByEmail(renewalPassword.getEmail())
-        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다."));
+        .orElseThrow(() -> new NotFoundException("해당 유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
 
-    if(user.matchPassword(renewalPassword.getNewPassword())) throw new ConflictException("같은 비밀번호로 비밀번호를 수정할 수 없습니다.");
+    if(user.matchPassword(renewalPassword.getNewPassword())) throw new ConflictException("같은 비밀번호로 비밀번호를 수정할 수 없습니다.", ErrorCode.PASSWORD_DUPLICATION);
 
     user.changePassword(renewalPassword.getNewPassword());
     userRepository.save(user);
