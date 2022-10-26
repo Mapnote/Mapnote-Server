@@ -2,11 +2,12 @@ package com.mapnote.mapnoteserver.domain.common.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.mapnote.mapnoteserver.domain.common.dto.ResponseCode;
 import lombok.Getter;
 
 @JsonFormat(shape = Shape.OBJECT)
 @Getter
-public enum ErrorCode {
+public enum ErrorCode implements ResponseCode {
 
   // common
   INVALID_INPUT_VALUE(400, "C001", " Invalid Input Value"),

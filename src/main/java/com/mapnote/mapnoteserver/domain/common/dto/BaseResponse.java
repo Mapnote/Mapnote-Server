@@ -1,6 +1,5 @@
 package com.mapnote.mapnoteserver.domain.common.dto;
 
-import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
 import lombok.Getter;
 
 @Getter
@@ -20,10 +19,10 @@ public class BaseResponse {
     this.message = message;
   }
 
-  public BaseResponse(ErrorCode errorCode) {
-    this.code = errorCode.getCode();
-    this.message = errorCode.getMessage();
-    this.status = errorCode.getStatus();
+  public BaseResponse(ResponseCode responseCode) {
+    this.code = responseCode.getCode();
+    this.message = responseCode.getMessage();
+    this.status = responseCode.getStatus();
   }
 
 }
