@@ -1,14 +1,17 @@
 package com.mapnote.mapnoteserver.domain.user.controller;
 
+import com.mapnote.mapnoteserver.domain.common.dto.DataResponse;
 import com.mapnote.mapnoteserver.domain.user.dto.UserRequest;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse;
 import com.mapnote.mapnoteserver.domain.user.dto.UserResponse.TokenResponse;
+import com.mapnote.mapnoteserver.domain.user.dto.UserResponse.UserSignupResponse;
 import com.mapnote.mapnoteserver.domain.user.service.UserService;
 import com.mapnote.mapnoteserver.security.CustomUserDetails;
 import com.mapnote.mapnoteserver.security.aop.Auth;
 import com.mapnote.mapnoteserver.security.aop.CurrentUser;
 import java.net.URI;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,75 +33,83 @@ public class UserController {
   }
 
   @PostMapping("")
-  public ResponseEntity<UUID> signUp(@Validated @RequestBody UserRequest.SignUp signUpRequest) {
+  public ResponseEntity<DataResponse<UserResponse.UserSignupResponse>> signUp(@Validated @RequestBody UserRequest.SignUp signUpRequest) {
     UUID id = userService.signUp(signUpRequest);
-    return ResponseEntity.created(URI.create("/")).body(id);
+    DataResponse<UserResponse.UserSignupResponse> response = new DataResponse<>(UserResponseCode.SIGNUP_SUCCESS, new UserSignupResponse(id));
+    return ResponseEntity.created(URI.create("/")).body(response);
   }
 
   @PostMapping("/login")
-  public ResponseEntity<UserResponse.TokenResponse> login(@Validated @RequestBody UserRequest.Login loginRequest) {
+  public ResponseEntity<DataResponse<UserResponse.TokenResponse>> login(@Validated @RequestBody UserRequest.Login loginRequest) {
     TokenResponse loginResponse = userService.login(loginRequest);
-    return ResponseEntity.ok(loginResponse);
+    DataResponse<UserResponse.TokenResponse> response = new DataResponse<>(UserResponseCode.LOGIN_SUCCESS, loginResponse);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @PostMapping("/reissue")
-  public ResponseEntity<UserResponse.TokenResponse> reissue(@Validated @RequestBody UserRequest.Reissue reissueRequest) {
+  public ResponseEntity<DataResponse<UserResponse.TokenResponse>> reissue(@Validated @RequestBody UserRequest.Reissue reissueRequest) {
     TokenResponse reissueResponse = userService.reissue(reissueRequest);
-    return ResponseEntity.ok(reissueResponse);
+    DataResponse<UserResponse.TokenResponse> response = new DataResponse<>(UserResponseCode.REISSUE_TOKEN, reissueResponse);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @Auth
   @PostMapping("/logout")
-  public ResponseEntity<Void> logout(@Validated @RequestBody UserRequest.Logout logoutRequest) {
+  public ResponseEntity<DataResponse<Void>> logout(@Validated @RequestBody UserRequest.Logout logoutRequest) {
     userService.logout(logoutRequest);
-    return ResponseEntity.noContent().build();
+    DataResponse<Void> response = new DataResponse<>(UserResponseCode.LOGOUT_SUCCESS,null);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @Auth
   @PostMapping("/email")
-  public ResponseEntity<Void> emailCheck(@Validated @RequestBody UserRequest.Email emailRequest) {
+  public ResponseEntity<DataResponse<Void>> emailCheck(@Validated @RequestBody UserRequest.Email emailRequest) {
     userService.checkEmail(emailRequest);
-
-    return ResponseEntity.noContent().build();
+    DataResponse<Void> response = new DataResponse<>(UserResponseCode.CHECK_EMAIL_SUCCESS,null);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @PostMapping("/password")
-  public ResponseEntity<Void> renewalPassword(@Validated @RequestBody UserRequest.RenewalPassword renewalPassword) {
+  public ResponseEntity<DataResponse<Void>> renewalPassword(@Validated @RequestBody UserRequest.RenewalPassword renewalPassword) {
 
     userService.renewalPassword(renewalPassword);
-
-    return ResponseEntity.ok().build();
+    DataResponse<Void> response = new DataResponse<>(UserResponseCode.PASSWORD_UPDATE_SUCCESS,null);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @Auth
   @GetMapping("")
-  public ResponseEntity<UserResponse.UserDetailResponse> getUserDetail(@CurrentUser CustomUserDetails user) {
+  public ResponseEntity<DataResponse<UserResponse.UserDetailResponse>> getUserDetail(@CurrentUser CustomUserDetails user) {
     UserResponse.UserDetailResponse userDetail = userService.getUserDetail(user.getId());
-    return ResponseEntity.ok(userDetail);
+    DataResponse<UserResponse.UserDetailResponse> response = new DataResponse<>(UserResponseCode.GET_USER_DETAIL,userDetail);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @Auth
   @PutMapping("/newPassword")
-  public ResponseEntity<Void> changePassword(@Validated @RequestBody UserRequest.NewPassword passwordRequest,
+  public ResponseEntity<DataResponse<Void>> changePassword(@Validated @RequestBody UserRequest.NewPassword passwordRequest,
       @CurrentUser CustomUserDetails user) {
     userService.changePassword(user.getId(), passwordRequest);
-    return ResponseEntity.ok().build();
+    DataResponse<Void> response = new DataResponse<>(UserResponseCode.PASSWORD_UPDATE_SUCCESS,null);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @Auth
   @PutMapping("")
-  public ResponseEntity<UserResponse.UserDetailResponse> changeInfo(@Validated @RequestBody UserRequest.ChangeInfo changeInfo,
+  public ResponseEntity<DataResponse<UserResponse.UserDetailResponse>> changeInfo(@Validated @RequestBody UserRequest.ChangeInfo changeInfo,
       @CurrentUser CustomUserDetails user) {
 
     UserResponse.UserDetailResponse userDetail = userService.changeInfo(changeInfo, user.getId());
-    return ResponseEntity.ok(userDetail);
+    DataResponse<UserResponse.UserDetailResponse> response = new DataResponse<>(UserResponseCode.PASSWORD_UPDATE_SUCCESS,userDetail);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
   @Auth
   @DeleteMapping("")
-  public ResponseEntity<Void> delete(@CurrentUser CustomUserDetails user) {
+  public ResponseEntity<DataResponse<Void>> delete(@CurrentUser CustomUserDetails user) {
     userService.delete(user.getId());
-    return ResponseEntity.noContent().build();
+    DataResponse<Void> response = new DataResponse<>(UserResponseCode.USER_DELETE,null);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
 }
