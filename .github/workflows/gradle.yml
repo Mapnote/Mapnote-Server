@@ -30,6 +30,7 @@ jobs:
         shell: bash
         env:
           APPLICATION: ${{secrets.APPLICATION}}
+          API_KEY: ${{secrets.API_KEY}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
@@ -59,6 +60,7 @@ jobs:
         shell: bash
         env:
           APPLICATION: ${{secrets.APPLICATION}}
+          API_KEY: ${{secrets.API_KEY}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
