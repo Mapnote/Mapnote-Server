@@ -25,11 +25,11 @@ public enum ErrorCode implements ResponseCode {
   NOT_FOUND_USER(404, "U003", "User does not exist"),
   PASSWORD_DUPLICATION(409, "U004", "Password is Duplication"),
   WRONG_PASSWORD_INPUT(400, "U005", "Invalid password entered."),
-  WRONG_INPUT_INVALID(400, "U006", "Invalid Input entered.");
+  WRONG_INPUT_INVALID(400, "U006", "Invalid Input entered."),
 
 
   // Memo
-
+  NOT_FOUND_MEMO(404, "M001", "Memo does not exist");
 
   private String code;
   private String message;
