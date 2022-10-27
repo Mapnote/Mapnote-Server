@@ -23,7 +23,9 @@ jobs:
           mkdir resources
           cd ./resources
           touch ./application.yml
+          touch ./application-API-KEY.properties
           echo "$APPLICATION" >> ./application.yml
+          echo "$API_KEY" >> ./application-API-KEY.properties
           ls -al
         shell: bash
         env:
@@ -50,7 +52,9 @@ jobs:
           mkdir resources
           cd ./resources
           touch ./application.yml
+          touch ./application-API-KEY.properties
           echo "$APPLICATION" >> ./application.yml
+          echo "$API_KEY" >> ./application-API-KEY.properties
           ls -al
         shell: bash
         env:
