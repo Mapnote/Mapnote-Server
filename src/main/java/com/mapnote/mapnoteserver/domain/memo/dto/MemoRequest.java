@@ -10,8 +10,15 @@ public class MemoRequest {
 
   @Getter
   public static class Save {
+    private Double latitude;
+    private Double longitude;
+    private String address;
     private String contents;
     private MemoType type;
+  }
+  @Getter
+  public static class Delete {
+    private Long id;
   }
 
 
