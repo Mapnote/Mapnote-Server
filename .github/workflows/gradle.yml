@@ -23,11 +23,14 @@ jobs:
           mkdir resources
           cd ./resources
           touch ./application.yml
+          touch ./application-API-KEY.properties
           echo "$APPLICATION" >> ./application.yml
+          echo "$API_KEY" >> ./application-API-KEY.properties
           ls -al
         shell: bash
         env:
           APPLICATION: ${{secrets.APPLICATION}}
+          API_KEY: ${{secrets.API_KEY}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
@@ -50,11 +53,14 @@ jobs:
           mkdir resources
           cd ./resources
           touch ./application.yml
+          touch ./application-API-KEY.properties
           echo "$APPLICATION" >> ./application.yml
+          echo "$API_KEY" >> ./application-API-KEY.properties
           ls -al
         shell: bash
         env:
           APPLICATION: ${{secrets.APPLICATION}}
+          API_KEY: ${{secrets.API_KEY}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
