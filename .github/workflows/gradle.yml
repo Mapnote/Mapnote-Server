@@ -98,8 +98,6 @@ jobs:
           echo "$DEPLOY_KEY" >> mapnote.pem
           chmod 400 mapnote.pem
           ls -al
-          scp -i mapnote.pem spring.tar ec2-user@$DEPLOY_URL:./deploy
-          rm mapnote.pem
         shell: bash
         env:
           DEPLOY_KEY: ${{secrets.DEPLOY_KEY}}
