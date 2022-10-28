@@ -35,6 +35,11 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build --exclude-task test
+      - name: Upload math result for job 1
+          uses: actions/upload-artifact@v3
+          with:
+            name: Artifact JAR file
+            path: ./build/libs/mapnote-server-0.0.1-SNAPSHOT.jar
   test:
     runs-on: ubuntu-latest
     services:
@@ -65,3 +70,13 @@ jobs:
         run: chmod +x gradlew
       - name: Test with Gradle
         run: ./gradlew test
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check JAR FILE
+        run: |
+          cd ./build/libs
+          ls -al
+        shell: bash
