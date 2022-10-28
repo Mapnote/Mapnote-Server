@@ -7,9 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 11
@@ -35,11 +32,6 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build --exclude-task test
-      - name: Upload build result
-          uses: actions/upload-artifact@v1
-          with:
-            name: Artifact JAR file
-            path: ./build/libs/mapnote-server-0.0.1-SNAPSHOT.jar
   test:
     runs-on: ubuntu-latest
     services:
@@ -75,8 +67,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Check JAR FILE
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Make application.properties
         run: |
-          cd ./build/libs
+          cd ./src/main
+          mkdir resources
+          cd ./resources
+          touch ./application.yml
+          touch ./application-API-KEY.properties
+          echo "$APPLICATION" >> ./application.yml
+          echo "$API_KEY" >> ./application-API-KEY.properties
           ls -al
         shell: bash
+        env:
+          APPLICATION: ${{secrets.APPLICATION}}
+          API_KEY: ${{secrets.API_KEY}}
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build --exclude-task test
+      - name: Make docker image
+        run: |
+          docker build -t spring ./
+          docker images
+        shell: bash
+
+
