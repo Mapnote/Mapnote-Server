@@ -99,12 +99,9 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           username: ec2-user
-          host: $DEPLOY_HOST
-          key: $DEPLOY_KEY
+          host: ${{secrets.DEPLOY_URL}}
+          key: ${{secrets.DEPLOY_KEY}}
           source: "spring.tar"
           target: "/home/ec2-user/deploy"
-        env:
-          DEPLOY_KEY: ${{secrets.DEPLOY_KEY}}
-          DEPLOY_HOST: ${{secrets.DEPLOY_URL}}
 
 
