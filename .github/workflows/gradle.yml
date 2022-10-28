@@ -94,7 +94,15 @@ jobs:
         run: |
           docker build -t spring ./
           docker save -o spring.tar spring
+          touch mapnote.pem
+          echo "$DEPLOY_KEY" >> mapnote.pem
+          chmod 400 mapnote.pem
           ls -al
+          scp -i mapnote.pem spring.tar ec2-user@"$DEPLOY_URL":./deploy
+          rm mapnote.pem
         shell: bash
+        env:
+          DEPLOY_KEY: ${{secrets.DEPLOY_KEY}}
+          DEPLOY_URL: ${{secrets.DEPLOY_URL}}
 
 
