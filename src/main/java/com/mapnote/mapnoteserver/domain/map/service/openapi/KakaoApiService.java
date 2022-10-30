@@ -15,15 +15,15 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
-public class KakaoApi {
+public class KakaoApiService {
 
-  private static final String authorization = "Authorization";
-  private static final String baseUri = "https://dapi.kakao.com/";
-  private static final String keywordPath = "v2/local/search/keyword.json";
-  private static final String coordinatePath = "v2/local/geo/coord2address.json";
+  private static final String AUTHORIZATION = "Authorization";
+  private static final String BASE_URL = "https://dapi.kakao.com/";
+  private static final String KEYWORD_PATH = "v2/local/search/keyword.json";
+  private static final String COORDINATE_PATH = "v2/local/geo/coord2address.json";
 
   // Authorization header의 body에 api key 앞에 붙이는 string
-  private static final String apiKeyPrefix = "KakaoAK ";
+  private static final String API_KEY_PREFIX = "KakaoAK ";
 
   @Value("${KAKAO_API_KEY}")
   private String restApiKey;
@@ -31,8 +31,8 @@ public class KakaoApi {
   public ResponseEntity<String> searchByKeyword(MapRequest.KeywordQuery keywordQuery) {
     //uri 설정
     URI uri = UriComponentsBuilder
-        .fromUriString(baseUri)
-        .path(keywordPath)
+        .fromUriString(BASE_URL)
+        .path(KEYWORD_PATH)
         .queryParam("query", keywordQuery.getQuery())
         .queryParam("y", keywordQuery.getY())
         .queryParam("x", keywordQuery.getX())
@@ -47,8 +47,8 @@ public class KakaoApi {
   public ResponseEntity<String> searchByCoordinate(Coordinate coordinate) {
     //uri 설정
     URI uri = UriComponentsBuilder
-        .fromUriString(baseUri)
-        .path(coordinatePath)
+        .fromUriString(BASE_URL)
+        .path(COORDINATE_PATH)
         .queryParam("y", coordinate.getY())
         .queryParam("x", coordinate.getX())
         .encode()
@@ -62,7 +62,7 @@ public class KakaoApi {
   private ResponseEntity<String> sendRequest(URI uri) {
     //header 설정
     HttpHeaders headers = new HttpHeaders();
-    headers.set(authorization, apiKeyPrefix + restApiKey);
+    headers.set(AUTHORIZATION, API_KEY_PREFIX + restApiKey);
     MediaType mediaType = new MediaType("application", "json", StandardCharsets.UTF_8);
     headers.setContentType(mediaType);
 
