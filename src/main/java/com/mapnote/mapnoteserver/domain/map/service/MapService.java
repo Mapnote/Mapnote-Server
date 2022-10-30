@@ -6,16 +6,16 @@ import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
 import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
 import com.mapnote.mapnoteserver.domain.map.dto.KakaoApiResponse;
 import com.mapnote.mapnoteserver.domain.map.dto.MapRequest;
-import com.mapnote.mapnoteserver.domain.map.service.openapi.KakaoApi;
+import com.mapnote.mapnoteserver.domain.map.service.openapi.KakaoApiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MapService {
 
-  private final KakaoApi kakaoApi;
+  private final KakaoApiService kakaoApi;
 
-  public MapService(KakaoApi kakaoApi){
+  public MapService(KakaoApiService kakaoApi){
     this.kakaoApi = kakaoApi;
   }
 

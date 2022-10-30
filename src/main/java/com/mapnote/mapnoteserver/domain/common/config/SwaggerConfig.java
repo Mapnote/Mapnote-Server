@@ -26,6 +26,14 @@ public class SwaggerConfig {
   }
 
   @Bean
+  public GroupedOpenApi mapApi() {
+    return GroupedOpenApi.builder()
+        .group("장소 검색 관련 API")
+        .pathsToMatch("/api/v1/map/**")
+        .build();
+  }
+
+  @Bean
   public OpenAPI springShopOpenAPI() {
     return new OpenAPI()
         .info(new Info().title("Mapnote SWAGGER")
