@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,7 +38,7 @@ public class MapController {
   })
   @GetMapping("/keyword")
   public ResponseEntity<DataResponse<KakaoApiResponse.KeywordResult>> searchByKeyword(
-      @Validated @ModelAttribute MapRequest.KeywordQuery keywordQuery) { // GET이 json으로 넘겨줄수있는지부터 알아보고, ModelAttribute를 왜못쓰는지도
+      @Validated @ModelAttribute MapRequest.KeywordQuery keywordQuery) {
 
     KakaoApiResponse.KeywordResult keywordResult = mapService.searchByKeyword(keywordQuery);
     DataResponse<KakaoApiResponse.KeywordResult> response = new DataResponse<>(
