@@ -1,6 +1,10 @@
 package com.mapnote.mapnoteserver.domain.schedule.entity;
 
+import static java.util.Objects.isNull;
+
 import com.mapnote.mapnoteserver.domain.common.entity.BaseEntity;
+import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
+import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
 import com.mapnote.mapnoteserver.domain.schedule.vo.Place;
 import com.mapnote.mapnoteserver.domain.user.entity.User;
 import javax.persistence.Column;
@@ -38,7 +42,7 @@ public class Schedules extends BaseEntity {
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
   private User user;
 
   @Column(name = "content")
@@ -62,6 +66,24 @@ public class Schedules extends BaseEntity {
   private AlarmStatus alarmStatus;
 
   @Column(name = "is_deleted")
+  @Builder.Default
   private Boolean isDeleted = Boolean.FALSE;
+
+  public Schedules(User user, String content,
+      Place place) {
+    addUser(user);
+    this.content = content;
+    this.place = place;
+    this.category = Category.NONE;
+    this.scheduleStatus = ScheduleStatus.ONGOING;
+    this.alarmStatus = AlarmStatus.NOT_CRY;
+  }
+
+  public void addUser(User user) {
+    if (isNull(user)) throw new BadRequestException("유저 정보가 잘못됐습니다.", ErrorCode.WRONG_INPUT_INVALID);
+    if(this.user != null) this.user.getSchedules().remove(this);
+    user.addSchedule(this);
+    this.user = user;
+  }
 
 }

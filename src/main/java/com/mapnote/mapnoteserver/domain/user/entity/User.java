@@ -100,6 +100,10 @@ public class User extends BaseEntity {
     setBoundary(boundary);
   }
 
+  public void addSchedule(Schedules schedule) {
+    this.schedules.add(schedule);
+  }
+
   private void setPassword(String password) {
     if(isBlank(password)) throw new BadRequestException("잘못된 형식의 패스워드가 입력됬습니다.", ErrorCode.WRONG_PASSWORD_INPUT);
     this.password = password;
