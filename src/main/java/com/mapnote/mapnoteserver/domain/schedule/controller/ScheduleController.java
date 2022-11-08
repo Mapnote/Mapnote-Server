@@ -6,6 +6,7 @@ import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse.ScheduleDetail;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse.ScheduleSummary;
 import com.mapnote.mapnoteserver.domain.schedule.entity.ScheduleStatus;
+import com.mapnote.mapnoteserver.domain.schedule.entity.Schedules;
 import com.mapnote.mapnoteserver.domain.schedule.service.ScheduleService;
 import com.mapnote.mapnoteserver.security.CustomUserDetails;
 import com.mapnote.mapnoteserver.security.aop.Auth;
@@ -75,6 +76,20 @@ public class ScheduleController {
   public ResponseEntity<DataResponse<ScheduleResponse.ScheduleDetail>> toggleScheduleStatus(@CurrentUser CustomUserDetails user, @PathVariable Long scheduleId) {
 
     ScheduleDetail scheduleDetail = scheduleService.toggleStatus(user.getId(), scheduleId);
+
+    DataResponse<ScheduleResponse.ScheduleDetail> response = new DataResponse<>(ScheduleResponseCode.CREATE_SUCCESS, scheduleDetail);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+  }
+
+  @Auth
+  @PutMapping("/{scheduleId}")
+  public ResponseEntity<DataResponse<ScheduleResponse.ScheduleDetail>> updateSchedule(@CurrentUser CustomUserDetails user,
+      @PathVariable Long scheduleId,
+      @RequestBody ScheduleRequest.Update update) {
+
+    System.out.println("---" + scheduleId);
+
+    ScheduleDetail scheduleDetail = scheduleService.update(user.getId(), scheduleId, update);
 
     DataResponse<ScheduleResponse.ScheduleDetail> response = new DataResponse<>(ScheduleResponseCode.CREATE_SUCCESS, scheduleDetail);
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));

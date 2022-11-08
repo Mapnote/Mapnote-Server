@@ -1,6 +1,7 @@
 package com.mapnote.mapnoteserver.domain.schedule.entity;
 
 import static java.util.Objects.isNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.mapnote.mapnoteserver.domain.common.entity.BaseEntity;
 import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
@@ -72,8 +73,8 @@ public class Schedules extends BaseEntity {
   public Schedules(User user, String content,
       Place place) {
     addUser(user);
-    this.content = content;
-    this.place = place;
+    setContent(content);
+    setPlace(place);
     this.category = Category.NONE;
     this.scheduleStatus = ScheduleStatus.ONGOING;
     this.alarmStatus = AlarmStatus.NOT_CRY;
@@ -89,5 +90,26 @@ public class Schedules extends BaseEntity {
   public void toggleStatus() {
     if(this.getScheduleStatus() == ScheduleStatus.ONGOING) this.scheduleStatus = ScheduleStatus.FINISH;
     else this.scheduleStatus = ScheduleStatus.ONGOING;
+  }
+
+  public void changeContent(String content) {
+    setContent(content);
+  }
+
+  public void changePlace(Place place) {
+    setPlace(place);
+  }
+
+  private boolean checkBlank(String target) {
+    if(isBlank(target)) throw new BadRequestException("잘못된 값이 들어왔습니다.", ErrorCode.WRONG_INPUT_INVALID);
+    return true;
+  }
+
+  private void setContent(String content) {
+    if(checkBlank(content)) this.content = content;
+  }
+
+  private void setPlace(Place place) {
+    if(!isNull(place)) this.place = place;
   }
 }
