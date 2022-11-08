@@ -7,6 +7,7 @@ import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse.ScheduleDe
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse.ScheduleSummary;
 import com.mapnote.mapnoteserver.domain.schedule.entity.ScheduleStatus;
 import com.mapnote.mapnoteserver.domain.schedule.service.ScheduleService;
+import com.mapnote.mapnoteserver.domain.user.controller.UserResponseCode;
 import com.mapnote.mapnoteserver.security.CustomUserDetails;
 import com.mapnote.mapnoteserver.security.aop.Auth;
 import com.mapnote.mapnoteserver.security.aop.CurrentUser;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -90,5 +92,15 @@ public class ScheduleController {
     DataResponse<ScheduleResponse.ScheduleDetail> response = new DataResponse<>(ScheduleResponseCode.CREATE_SUCCESS, scheduleDetail);
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
+
+  @Auth
+  @DeleteMapping("/{scheduleId}")
+  public ResponseEntity<DataResponse<Void>> delete(@CurrentUser CustomUserDetails user, @PathVariable Long scheduleId) {
+    scheduleService.delete(user.getId() ,scheduleId);
+    DataResponse<Void> response = new DataResponse<>(ScheduleResponseCode.SCHEDULE_DELETE,null);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+
+  }
+
 
 }

@@ -99,6 +99,15 @@ public class ScheduleService {
     return ScheduleConverter.toDetail(updateSchedule);
   }
 
+  @Transactional
+  public void delete(UUID userId, Long scheduleId) {
+    Schedules schedule = scheduleRepository.findByIdAndUser_Id(scheduleId, userId)
+        .orElseThrow(
+            () -> new NotFoundException("해당 스케줄이 존재하지 않습니다.", ErrorCode.NOT_FOUND_SCHEDULE));
+
+    scheduleRepository.delete(schedule);
+  }
+
   private User isExistUser(UUID userId) {
     return userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
