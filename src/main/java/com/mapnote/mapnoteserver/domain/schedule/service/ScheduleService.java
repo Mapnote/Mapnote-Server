@@ -2,7 +2,6 @@ package com.mapnote.mapnoteserver.domain.schedule.service;
 
 import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
 import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
-import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleRequest;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleRequest.Create;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleRequest.Update;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse.ScheduleDetail;
@@ -86,8 +85,6 @@ public class ScheduleService {
         .orElseThrow(
             () -> new NotFoundException("해당 스케줄이 존재하지 않습니다.", ErrorCode.NOT_FOUND_SCHEDULE));
 
-    System.out.println("??????");
-
     schedule.changeContent(update.getContent());
     Place place = Place.builder()
         .name(update.getPlaceName())
@@ -98,8 +95,6 @@ public class ScheduleService {
     schedule.changePlace(place);
 
     Schedules updateSchedule = scheduleRepository.save(schedule);
-
-    System.out.println("======= " + updateSchedule.getContent());
 
     return ScheduleConverter.toDetail(updateSchedule);
   }
