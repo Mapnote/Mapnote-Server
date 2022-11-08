@@ -50,11 +50,26 @@ public class ScheduleService {
   public ScheduleDetail findSchedule(UUID userId, Long scheduleId) {
     isExistUser(userId);
 
-    Schedules schedules = scheduleRepository.findByIdAndUser_Id(scheduleId, userId)
+    Schedules schedule = scheduleRepository.findByIdAndUser_Id(scheduleId, userId)
         .orElseThrow(
             () -> new NotFoundException("해당 스케줄이 존재하지 않습니다.", ErrorCode.NOT_FOUND_SCHEDULE));
 
-    return ScheduleConverter.toDetail(schedules);
+    return ScheduleConverter.toDetail(schedule);
+  }
+
+  @Transactional
+  public ScheduleDetail toggleStatus(UUID userId, Long scheduleId) {
+
+    isExistUser(userId);
+
+    scheduleRepository.findByIdAndUser_Id(scheduleId, userId)
+        .ifPresent(Schedules::toggleStatus);
+
+    Schedules schedule = scheduleRepository.findById(scheduleId)
+        .orElseThrow(
+            () -> new NotFoundException("해당 스케줄이 존재하지 않습니다.", ErrorCode.NOT_FOUND_SCHEDULE));
+
+    return ScheduleConverter.toDetail(schedule);
   }
 
   private User isExistUser(UUID userId) {

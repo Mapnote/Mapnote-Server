@@ -86,4 +86,8 @@ public class Schedules extends BaseEntity {
     this.user = user;
   }
 
+  public void toggleStatus() {
+    if(this.getScheduleStatus() == ScheduleStatus.ONGOING) this.scheduleStatus = ScheduleStatus.FINISH;
+    else this.scheduleStatus = ScheduleStatus.ONGOING;
+  }
 }

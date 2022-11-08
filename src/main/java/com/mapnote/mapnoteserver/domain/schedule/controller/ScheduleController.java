@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,6 +65,16 @@ public class ScheduleController {
   public ResponseEntity<DataResponse<ScheduleResponse.ScheduleDetail>> getScheduleDetail(@CurrentUser CustomUserDetails user, @PathVariable Long scheduleId) {
 
     ScheduleDetail scheduleDetail = scheduleService.findSchedule(user.getId(), scheduleId);
+
+    DataResponse<ScheduleResponse.ScheduleDetail> response = new DataResponse<>(ScheduleResponseCode.CREATE_SUCCESS, scheduleDetail);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+  }
+
+  @Auth
+  @PutMapping("/status/{scheduleId}")
+  public ResponseEntity<DataResponse<ScheduleResponse.ScheduleDetail>> toggleScheduleStatus(@CurrentUser CustomUserDetails user, @PathVariable Long scheduleId) {
+
+    ScheduleDetail scheduleDetail = scheduleService.toggleStatus(user.getId(), scheduleId);
 
     DataResponse<ScheduleResponse.ScheduleDetail> response = new DataResponse<>(ScheduleResponseCode.CREATE_SUCCESS, scheduleDetail);
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
