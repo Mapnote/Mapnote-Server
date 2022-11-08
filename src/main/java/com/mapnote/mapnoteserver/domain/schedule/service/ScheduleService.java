@@ -34,8 +34,7 @@ public class ScheduleService {
   @Transactional
   public ScheduleDetail create(UUID userId, Create create) {
 
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
+    User user = isExistUser(userId);
 
     Schedules schedule = scheduleRepository.save(ScheduleConverter.toSchedule(create, user));
 
@@ -46,5 +45,20 @@ public class ScheduleService {
     Slice<Schedules> schedulesList = scheduleRepository.findByUser_IdAndScheduleStatusOrderByCreatedAtDesc(userId, scheduleStatus, pageable);
 
     return schedulesList.map(ScheduleConverter::toSummary);
+  }
+
+  public ScheduleDetail findSchedule(UUID userId, Long scheduleId) {
+    isExistUser(userId);
+
+    Schedules schedules = scheduleRepository.findByIdAndUser_Id(scheduleId, userId)
+        .orElseThrow(
+            () -> new NotFoundException("해당 스케줄이 존재하지 않습니다.", ErrorCode.NOT_FOUND_SCHEDULE));
+
+    return ScheduleConverter.toDetail(schedules);
+  }
+
+  private User isExistUser(UUID userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
   }
 }

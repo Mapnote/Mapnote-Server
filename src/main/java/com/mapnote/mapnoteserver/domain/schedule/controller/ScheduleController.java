@@ -14,6 +14,7 @@ import java.net.URI;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,7 +45,7 @@ public class ScheduleController {
   }
 
   @Auth
-  @GetMapping("/{status}")
+  @GetMapping("/list/{status}")
   public ResponseEntity<DataResponse<Slice<ScheduleSummary>>> getScheduleList(@CurrentUser CustomUserDetails user,
       @PathVariable String status,
       @PageableDefault(page = 0, size = 5) Pageable pageable) {
@@ -55,7 +56,17 @@ public class ScheduleController {
 
     DataResponse<Slice<ScheduleSummary>> response = new DataResponse<>(ScheduleResponseCode.GET_SCHEDULE_LIST, summaryList);
 
-    return ResponseEntity.ok(response);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+  }
+
+  @Auth
+  @GetMapping("/{scheduleId}")
+  public ResponseEntity<DataResponse<ScheduleResponse.ScheduleDetail>> getScheduleDetail(@CurrentUser CustomUserDetails user, @PathVariable Long scheduleId) {
+
+    ScheduleDetail scheduleDetail = scheduleService.findSchedule(user.getId(), scheduleId);
+
+    DataResponse<ScheduleResponse.ScheduleDetail> response = new DataResponse<>(ScheduleResponseCode.CREATE_SUCCESS, scheduleDetail);
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
 }

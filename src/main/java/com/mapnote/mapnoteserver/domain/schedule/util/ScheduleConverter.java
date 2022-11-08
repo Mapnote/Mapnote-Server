@@ -31,6 +31,7 @@ public class ScheduleConverter {
 
   public static ScheduleResponse.ScheduleDetail toDetail(Schedules schedule) {
     return ScheduleResponse.ScheduleDetail.builder()
+        .id(schedule.getId())
         .content(schedule.getContent())
         .category(schedule.getCategory())
         .place(schedule.getPlace())
@@ -42,6 +43,7 @@ public class ScheduleConverter {
 
   public static ScheduleResponse.ScheduleSummary toSummary(Schedules schedules) {
     return ScheduleResponse.ScheduleSummary.builder()
+        .id(schedules.getId())
         .content(schedules.getContent())
         .category(schedules.getCategory())
         .place(schedules.getPlace())

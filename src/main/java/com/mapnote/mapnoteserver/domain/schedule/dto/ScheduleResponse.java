@@ -15,6 +15,8 @@ public class ScheduleResponse {
   @AllArgsConstructor
   public static class ScheduleDetail {
 
+    private Long id;
+
     private String content;
 
     private Category category;
@@ -32,6 +34,8 @@ public class ScheduleResponse {
   @Builder
   @AllArgsConstructor
   public static class ScheduleSummary {
+
+    private Long id;
 
     private String content;
 

@@ -14,4 +14,6 @@ public interface ScheduleRepository extends JpaRepository<Schedules, Long> {
 
   Slice<Schedules> findByUser_IdAndScheduleStatusOrderByCreatedAtDesc(UUID userId, ScheduleStatus scheduleStatus, Pageable pageable);
 
+  Optional<Schedules> findByIdAndUser_Id(Long id, UUID userId);
+
 }
