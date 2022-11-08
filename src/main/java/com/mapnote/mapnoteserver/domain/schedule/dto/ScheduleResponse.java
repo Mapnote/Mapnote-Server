@@ -28,4 +28,16 @@ public class ScheduleResponse {
     private LocalDateTime updatedAt;
   }
 
+  @Getter
+  @Builder
+  @AllArgsConstructor
+  public static class ScheduleSummary {
+
+    private String content;
+
+    private Category category;
+
+    private Place place;
+  }
+
 }

@@ -12,8 +12,7 @@ import com.mapnote.mapnoteserver.domain.user.entity.User;
 public class ScheduleConverter {
 
   public static Schedules toSchedule(ScheduleRequest.Create create, User user) {
-    return Schedules.builder()
-        .user(user)
+    Schedules schedule = Schedules.builder()
         .content(create.getContent())
         .place(Place.builder()
             .name(create.getPlaceName())
@@ -24,6 +23,10 @@ public class ScheduleConverter {
         .scheduleStatus(ScheduleStatus.ONGOING)
         .alarmStatus(AlarmStatus.NOT_CRY)
         .build();
+
+    schedule.addUser(user);
+
+    return schedule;
   }
 
   public static ScheduleResponse.ScheduleDetail toDetail(Schedules schedule) {
@@ -34,6 +37,14 @@ public class ScheduleConverter {
         .scheduleStatus(schedule.getScheduleStatus())
         .createdAt(schedule.getCreatedAt())
         .updatedAt(schedule.getUpdatedAt())
+        .build();
+  }
+
+  public static ScheduleResponse.ScheduleSummary toSummary(Schedules schedules) {
+    return ScheduleResponse.ScheduleSummary.builder()
+        .content(schedules.getContent())
+        .category(schedules.getCategory())
+        .place(schedules.getPlace())
         .build();
   }
 

@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 public enum ScheduleResponseCode implements ResponseCode  {
 
-  CREATE_SUCCESS(201, "S201", "Signup SUCCESS")
-  ;
+  CREATE_SUCCESS(201, "S201", "Signup SUCCESS"),
+  GET_SCHEDULE_LIST(200, "S202", "Get List SUCCESS");
 
   private String code;
   private String message;
