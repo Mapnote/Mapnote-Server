@@ -10,7 +10,7 @@ public class UserConverter {
     return UserDetailResponse.builder()
         .email(user.getEmail())
         .name(user.getName())
-        .memoList(user.getMemos())
+        .scheduleList(user.getSchedules())
         .boundary(user.getBoundary())
         .build();
   }
