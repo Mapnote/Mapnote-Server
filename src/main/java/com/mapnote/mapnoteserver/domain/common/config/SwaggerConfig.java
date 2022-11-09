@@ -34,7 +34,15 @@ public class SwaggerConfig {
   }
 
   @Bean
-  public OpenAPI springShopOpenAPI() {
+  public GroupedOpenApi scheduleApi() {
+    return GroupedOpenApi.builder()
+        .group("스케줄 관련 API")
+        .pathsToMatch("/api/v1/schedule/**")
+        .build();
+  }
+
+  @Bean
+  public OpenAPI springOpenAPI() {
     return new OpenAPI()
         .info(new Info().title("Mapnote SWAGGER")
             .description("Mapnote Swagger - API 문서"));
