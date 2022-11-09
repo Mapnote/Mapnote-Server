@@ -25,7 +25,7 @@ public class KakaoApiService {
   // Authorization header의 body에 api key 앞에 붙이는 string
   private static final String API_KEY_PREFIX = "KakaoAK ";
 
-  @Value("${KAKAO_API_KEY}")
+  @Value("${api.kakao.key}")
   private String restApiKey;
 
   public ResponseEntity<String> searchByKeyword(MapRequest.KeywordQuery keywordQuery) {
