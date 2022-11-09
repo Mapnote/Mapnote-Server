@@ -6,7 +6,7 @@ import static org.apache.logging.log4j.util.Strings.isBlank;
 import com.mapnote.mapnoteserver.domain.common.entity.BaseEntity;
 import com.mapnote.mapnoteserver.domain.common.exception.BadRequestException;
 import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
-import com.mapnote.mapnoteserver.domain.memo.entity.Memo;
+import com.mapnote.mapnoteserver.domain.schedule.entity.Schedules;
 import com.mapnote.mapnoteserver.domain.user.util.PasswordEncrypter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class User extends BaseEntity {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
-  private List<Memo> memos = new ArrayList<>();
+  private List<Schedules> schedules = new ArrayList<>();
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
@@ -98,6 +98,10 @@ public class User extends BaseEntity {
 
   public void changeBoundary(Long boundary) {
     setBoundary(boundary);
+  }
+
+  public void addSchedule(Schedules schedule) {
+    this.schedules.add(schedule);
   }
 
   private void setPassword(String password) {

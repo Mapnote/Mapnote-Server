@@ -1,6 +1,6 @@
 package com.mapnote.mapnoteserver.domain.user.dto;
 
-import com.mapnote.mapnoteserver.domain.memo.entity.Memo;
+import com.mapnote.mapnoteserver.domain.schedule.entity.Schedules;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +35,7 @@ public class UserResponse {
     @Schema(description = "반경", example = "8")
     private Long boundary;
     @Schema(description = "유저가 등록한 스케줄 목록")
-    private List<Memo> memoList;
+    private List<Schedules> scheduleList;
   }
 
   @Getter
