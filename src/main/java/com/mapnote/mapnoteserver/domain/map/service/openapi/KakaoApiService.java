@@ -1,10 +1,11 @@
 package com.mapnote.mapnoteserver.domain.map.service.openapi;
 
+import com.mapnote.mapnoteserver.domain.common.config.ApiKeyProperty;
 import com.mapnote.mapnoteserver.domain.map.dto.MapRequest;
 import com.mapnote.mapnoteserver.domain.map.dto.MapRequest.Coordinate;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
+@RequiredArgsConstructor
 public class KakaoApiService {
 
   private static final String AUTHORIZATION = "Authorization";
@@ -25,8 +27,7 @@ public class KakaoApiService {
   // Authorization header의 body에 api key 앞에 붙이는 string
   private static final String API_KEY_PREFIX = "KakaoAK ";
 
-  @Value("${api.kakao.key}")
-  private String restApiKey;
+  private final ApiKeyProperty apiKeyProperty;
 
   public ResponseEntity<String> searchByKeyword(MapRequest.KeywordQuery keywordQuery) {
     //uri 설정
@@ -62,7 +63,7 @@ public class KakaoApiService {
   private ResponseEntity<String> sendRequest(URI uri) {
     //header 설정
     HttpHeaders headers = new HttpHeaders();
-    headers.set(AUTHORIZATION, API_KEY_PREFIX + restApiKey);
+    headers.set(AUTHORIZATION, API_KEY_PREFIX + apiKeyProperty.getKey());
     MediaType mediaType = new MediaType("application", "json", StandardCharsets.UTF_8);
     headers.setContentType(mediaType);
 
