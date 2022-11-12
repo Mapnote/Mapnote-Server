@@ -14,12 +14,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.apache.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AlarmService {
-  private final String API_URL = "https://fcm.googleapis.com/v1/projects/tourcash-13092/messages:send";
+  @Value("${firebase.message.url}")
+  private String API_URL;
   private final ObjectMapper objectMapper;
 
   public AlarmService(ObjectMapper objectMapper) {
