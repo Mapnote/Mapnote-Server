@@ -33,7 +33,7 @@ public class UserResponse {
     @Schema(description = "이름(닉네임)", example = "beomsic")
     private String name;
     @Schema(description = "반경", example = "8")
-    private Long boundary;
+    private Double boundary;
     @Schema(description = "유저가 등록한 스케줄 목록")
     private List<Schedules> scheduleList;
   }

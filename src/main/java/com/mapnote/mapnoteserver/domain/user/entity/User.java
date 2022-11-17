@@ -60,7 +60,7 @@ public class User extends BaseEntity {
 
   @Column(name = "boundary")
   @Builder.Default
-  private Long boundary = 6L;
+  private Double boundary = 6.0;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
@@ -96,7 +96,7 @@ public class User extends BaseEntity {
     setName(name);
   }
 
-  public void changeBoundary(Long boundary) {
+  public void changeBoundary(Double boundary) {
     setBoundary(boundary);
   }
 
@@ -114,7 +114,7 @@ public class User extends BaseEntity {
     this.name = name;
   }
 
-  private void setBoundary(Long boundary) {
+  private void setBoundary(Double boundary) {
     if(isNull(boundary)) throw new BadRequestException("NULL 값은 설정할 수 없습니다.", ErrorCode.WRONG_INPUT_INVALID);
     if(Arrays.stream(boundaryList).noneMatch(b -> boundary == b)) throw new BadRequestException("잘못된 값의 반경이 입력되었습니다.", ErrorCode.WRONG_INPUT_INVALID);
     this.boundary = boundary;
