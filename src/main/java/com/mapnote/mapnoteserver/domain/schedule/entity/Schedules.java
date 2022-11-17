@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "schedules")
@@ -69,6 +70,9 @@ public class Schedules extends BaseEntity {
   @Column(name = "is_deleted")
   @Builder.Default
   private Boolean isDeleted = Boolean.FALSE;
+
+  @Column(name = "point", columnDefinition = "GEOMETRY")
+  private Point point;
 
   public Schedules(User user, String content,
       Place place) {
