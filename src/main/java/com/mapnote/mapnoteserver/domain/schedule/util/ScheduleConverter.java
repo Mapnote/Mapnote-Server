@@ -8,12 +8,18 @@ import com.mapnote.mapnoteserver.domain.schedule.entity.ScheduleStatus;
 import com.mapnote.mapnoteserver.domain.schedule.vo.Address;
 import com.mapnote.mapnoteserver.domain.schedule.vo.Place;
 import com.mapnote.mapnoteserver.domain.user.entity.User;
+import org.locationtech.jts.geom.*;
 
 public class ScheduleConverter {
 
   public static Schedules toSchedule(ScheduleRequest.Create create, User user) {
+
+    String s = String.format("POINT (%s %s)", create.getLatitude(), create.getLongitude());
+    Point point = (Point) GeometryUtil.wktToGeometry(s);
+
     Schedules schedule = Schedules.builder()
         .content(create.getContent())
+        .point(point)
         .place(Place.builder()
             .name(create.getPlaceName())
             .latitude(create.getLatitude())
@@ -25,7 +31,6 @@ public class ScheduleConverter {
         .build();
 
     schedule.addUser(user);
-
     return schedule;
   }
 

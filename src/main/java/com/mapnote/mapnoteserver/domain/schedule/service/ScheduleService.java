@@ -3,20 +3,30 @@ package com.mapnote.mapnoteserver.domain.schedule.service;
 import com.mapnote.mapnoteserver.domain.common.exception.ErrorCode;
 import com.mapnote.mapnoteserver.domain.common.exception.NotFoundException;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleRequest.Create;
+import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleRequest.Location;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleRequest.Update;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse.ScheduleDetail;
 import com.mapnote.mapnoteserver.domain.schedule.dto.ScheduleResponse.ScheduleSummary;
 import com.mapnote.mapnoteserver.domain.schedule.entity.ScheduleStatus;
 import com.mapnote.mapnoteserver.domain.schedule.entity.Schedules;
 import com.mapnote.mapnoteserver.domain.schedule.repository.ScheduleRepository;
+import com.mapnote.mapnoteserver.domain.schedule.util.GeometryUtil;
 import com.mapnote.mapnoteserver.domain.schedule.util.ScheduleConverter;
 import com.mapnote.mapnoteserver.domain.schedule.vo.Address;
+import com.mapnote.mapnoteserver.domain.schedule.vo.Coordinate;
+import com.mapnote.mapnoteserver.domain.schedule.vo.Direction;
 import com.mapnote.mapnoteserver.domain.schedule.vo.Place;
 import com.mapnote.mapnoteserver.domain.user.entity.User;
 import com.mapnote.mapnoteserver.domain.user.repository.UserRepository;
+import java.util.List;
 import java.util.UUID;
+
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +34,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ScheduleService {
 
+  private final EntityManager entityManager;
   private final ScheduleRepository scheduleRepository;
   private final UserRepository userRepository;
 
   public ScheduleService(
-      ScheduleRepository scheduleRepository,
+      EntityManager entityManager, ScheduleRepository scheduleRepository,
       UserRepository userRepository) {
+    this.entityManager = entityManager;
     this.scheduleRepository = scheduleRepository;
     this.userRepository = userRepository;
   }
@@ -108,8 +120,60 @@ public class ScheduleService {
     scheduleRepository.delete(schedule);
   }
 
+  @Transactional
+  public Slice<ScheduleSummary> findScheduleByBoundary(UUID userId, Location location, Pageable pageable) {
+
+    User user = isExistUser(userId);
+    Double boundary = user.getBoundary();
+
+    String pointFormat = getMBRPoint(location.getLatitude(), location.getLongitude(), boundary);
+    Query nearByQuery = createNearByQuery(pointFormat);
+
+    List<Schedules> resultList = nearByQuery.getResultList();
+
+    List<ScheduleSummary> summaryList = resultList.stream()
+        .map(ScheduleConverter::toSummary)
+        .collect(Collectors.toList());
+
+    boolean hasNext = false;
+
+    if (summaryList.size() > pageable.getPageSize()) {
+      summaryList.remove(pageable.getPageSize());
+      hasNext = true;
+    }
+
+    return new SliceImpl<>(summaryList, pageable, hasNext);
+  }
+
+
   private User isExistUser(UUID userId) {
     return userRepository.findById(userId)
         .orElseThrow(() -> new NotFoundException("유저가 존재하지 않습니다.", ErrorCode.NOT_FOUND_USER));
   }
+
+  private String getMBRPoint(Double latitude, Double longitude, Double distance) {
+
+    Coordinate northEast = GeometryUtil.calculate(
+        latitude, longitude, distance, Direction.NORTHEAST.getBearing());
+
+    Coordinate southWest = GeometryUtil.calculate(
+        latitude, longitude, distance, Direction.SOUTHWEST.getBearing());
+
+    double x1 = northEast.getLatitude();
+    double y1 = northEast.getLongitude();
+    double x2 = southWest.getLatitude();
+    double y2 = southWest.getLongitude();
+
+    return String.format("'LINESTRING(%f %f, %f %f)')", x1, y1, x2, y2);
+  }
+
+  private Query createNearByQuery(String mbrPoint) {
+    String sql = "SELECT * \n" +
+        "FROM schedules AS sc \n" +
+        "WHERE MBRContains(ST_LINESTRINGFROMTEXT(" + mbrPoint + ", sc.point) \n" +
+        "ORDER BY sc.CREATED_AT DESC";
+
+    return entityManager.createNativeQuery(sql, Schedules.class);
+  }
+
 }
