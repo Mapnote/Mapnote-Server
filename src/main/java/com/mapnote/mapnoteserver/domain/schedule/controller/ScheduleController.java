@@ -103,6 +103,17 @@ public class ScheduleController {
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
 
+  @Auth
+  @GetMapping("/location")
+  public ResponseEntity<DataResponse<Slice<ScheduleResponse.ScheduleSummary>>> getScheduleListByLocation (@CurrentUser CustomUserDetails user,
+      @RequestBody ScheduleRequest.Location  location, @PageableDefault(page = 0, size = 5) Pageable pageable) {
+
+    Slice<ScheduleSummary> summaryList = scheduleService.findScheduleByBoundary(user.getId(), location, pageable);
+    DataResponse<Slice<ScheduleSummary>> response = new DataResponse<>(ScheduleResponseCode.GET_SCHEDULE_LIST, summaryList);
+
+    return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+  }
+
   @Operation(summary = "toggle schedule status", description = "스케줄의 진행중/완료 상태 변경")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "OK"),

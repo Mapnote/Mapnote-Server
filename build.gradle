@@ -1,7 +1,15 @@
+buildscript {
+	ext {
+		queryDslVersion = "5.0.0"
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.7.4'
 	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
 	id 'java'
+	// querydsl 플러그인 추가
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'com.mapnote'
@@ -29,14 +37,47 @@ dependencies {
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.7.4'
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.12'
 	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.2'
+	implementation group: 'org.hibernate', name: 'hibernate-spatial', version: '5.6.11.Final'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'mysql:mysql-connector-java'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
+
+	implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.16.1'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// querydsl 사용할 경로 지정합니다. 현재 지정한 부분은 .gitignore에 포함되므로 git에 올라가지 않습니다.
+def querydslDir = "$buildDir/generated/'querydsl'"
+
+// JPA 사용여부 및 사용 경로 설정
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+
+// build시 사용할 sourceSet 추가 설정
+sourceSets {
+	main.java.srcDir querydslDir
+}
+
+// querydsl 컴파일 시 사용할 옵션 설정
+compileQuerydsl {
+	options.annotationProcessorPath = configurations.querydsl
+}
+
+// querydsl이 compileClassPath를 상속하도록 설정
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
 }

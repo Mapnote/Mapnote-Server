@@ -90,7 +90,7 @@ public class UserRequest {
     private String name;
 
     @Schema(description = "반경", example = "8")
-    private Long boundary;
+    private Double boundary;
 
   }
 

@@ -1,5 +1,6 @@
 package com.mapnote.mapnoteserver.domain.schedule.dto;
 
+import com.mapnote.mapnoteserver.domain.schedule.entity.Sorting;
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -65,4 +66,17 @@ public class ScheduleRequest {
     @NotNull(message = "스케줄이 적용될 위도경도 정보는 필수 입니다.")
     private Double latitude;
   }
+
+  @Getter
+  public static class Location {
+
+    @Schema(description = "경도", example = "41.40338")
+    @NotNull(message = "스케줄이 적용될 위도경도 정보는 필수 입니다.")
+    private Double longitude;
+
+    @Schema(description = "위도", example = "2.17403")
+    @NotNull(message = "스케줄이 적용될 위도경도 정보는 필수 입니다.")
+    private Double latitude;
+  }
+
 }
