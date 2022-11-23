@@ -6,13 +6,14 @@
     converterClass="org.springframework.boot.logging.logback.ColorConverter"
   />
 
-  <property name = "CONSOLE_LOG_PATTERN" value = "%d{HH:mm:ss.SSS} [%thread] %clr(%-5level) %clr(%logger{30}){cyan} - %msg%n"/>
-  <property name = "ERROR_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%-5level] %msg%n"/>
+  <property name = "CONSOLE_LOG_PATTERN" value = "[%clr(%-5level)] [%d{HH:mm:ss.SSS}] [%thread] [%clr(%logger{30}){cyan}] - %msg%n"/>
+  <property name = "ERROR_LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative] [%-5level]  %logger{35} - %msg%n"/>
   <property name = "CONTROLLER_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%-5level] %msg%n"/>
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%clr(%-5level) %d [%thread] %clr(%logger){cyan} - %msg%n</pattern>
+<!--      <pattern>%clr(%-5level) %d [%thread] %clr(%logger){cyan} - %msg%n</pattern>-->
+      <pattern>${CONSOLE_LOG_PATTERN}</pattern>
     </encoder>
   </appender>
 
@@ -37,9 +38,28 @@
     </encoder>
   </appender>
 
+  <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
+    <webhookUri>https://hooks.slack.com/services/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</webhookUri>
+    <channel>#error-log</channel>
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <pattern>${ERROR_LOG_PATTERN}</pattern>
+    </layout>
+    <username>ERROR LOG!!</username>
+    <iconEmoji>:stuck_out_tongue_winking_eye:</iconEmoji>
+    <colorCoding>true</colorCoding>
+  </appender>
+
+  <appender name="ASYNC_SLACK" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="SLACK" />
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+  </appender>
+
   <root level="info">
     <appender-ref ref="CONSOLE" />
     <appender-ref ref="ERROR_FILE"/>
     <appender-ref ref="STASH"/>
+    <appender-ref ref="ASYNC_SLACK"/>
   </root>
 </configuration>
