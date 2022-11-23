@@ -53,6 +53,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	implementation group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: '7.17.7'
 	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '6.3'
+	implementation("net.gpedro.integrations.slack:slack-webhook:1.4.0")
+	implementation 'com.github.maricn:logback-slack-appender:1.6.1'
 }
 
 tasks.named('test') {
