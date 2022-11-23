@@ -1,15 +1,8 @@
 package com.mapnote.mapnoteserver.domain.common.exception;
 
 import com.mapnote.mapnoteserver.domain.common.dto.ErrorResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import com.mapnote.mapnoteserver.domain.common.util.SlackUtils;
 import javax.servlet.http.HttpServletRequest;
-import net.gpedro.integrations.slack.SlackApi;
-import net.gpedro.integrations.slack.SlackAttachment;
-import net.gpedro.integrations.slack.SlackField;
-import net.gpedro.integrations.slack.SlackMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,10 +16,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @ControllerAdvice
 public class ExceptionAdvice {
 
-  private final SlackApi slackApi;
+  private final SlackUtils slackUtils;
 
-  public ExceptionAdvice(SlackApi slackApi) {
-    this.slackApi = slackApi;
+  public ExceptionAdvice(SlackUtils slackUtils) {
+    this.slackUtils = slackUtils;
   }
 
   // @Validated - binding error
@@ -72,40 +65,8 @@ public class ExceptionAdvice {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleRuntimeException(HttpServletRequest req, Exception e) {
     ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
-    sendSlackMessage(req, e);
+    slackUtils.sendSlackMessage(req, e);
     return ResponseEntity.internalServerError().body(response);
-  }
-
-  private void sendSlackMessage(HttpServletRequest req, Exception e) {
-    SlackAttachment slackAttachment = new SlackAttachment();
-
-    slackAttachment.setFallback("Error");
-    slackAttachment.setColor("danger");
-    slackAttachment.setTitle("⚠️ ERROR DETECT");
-    slackAttachment.setTitleLink(req.getContextPath());
-    slackAttachment.setText(e.getStackTrace().toString());
-    slackAttachment.setColor("danger");
-    slackAttachment.setFields(getSlackField(req));
-
-    SlackMessage slackMessage = new SlackMessage();
-    slackMessage.setAttachments(Collections.singletonList(slackAttachment));
-    slackMessage.setIcon(":ghost:");
-    slackMessage.setText("⚠️ SERVER EXCEPTION DETECT");
-    slackMessage.setUsername("Server Exception!!");
-
-    slackApi.call(slackMessage);
-  }
-
-  private List getSlackField (HttpServletRequest req) {
-
-    List<SlackField> fields = new ArrayList<>();
-
-    fields.add(new SlackField().setTitle("Request URL").setValue(req.getRequestURI().toString()));
-    fields.add(new SlackField().setTitle("Request Method").setValue(req.getMethod()));
-    fields.add(new SlackField().setTitle("Request Time").setValue(new Date().toString()));
-    fields.add(new SlackField().setTitle("Request IP").setValue(req.getRemoteUser()));
-
-    return fields;
   }
 
 }

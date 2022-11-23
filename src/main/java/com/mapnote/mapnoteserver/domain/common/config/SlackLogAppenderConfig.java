@@ -1,4 +1,4 @@
-package com.mapnote.mapnoteserver.log.config;
+package com.mapnote.mapnoteserver.domain.common.config;
 
 import net.gpedro.integrations.slack.SlackApi;
 import org.springframework.beans.factory.annotation.Value;
