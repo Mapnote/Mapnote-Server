@@ -25,7 +25,6 @@ public class ControllerLogInterceptor extends HandlerInterceptorAdapter {
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
-    System.out.println("hihihihi");
     ControllerLog controllerLog = new ControllerLog(
         request.getMethod(),
         (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE),
@@ -34,7 +33,6 @@ public class ControllerLogInterceptor extends HandlerInterceptorAdapter {
 
     log.info(controllerLog.toString());
     controllerLogFluxSink.next(controllerLog);
-
     return super.preHandle(request, response, handler);
   }
 }
