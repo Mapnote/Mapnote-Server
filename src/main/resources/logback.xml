@@ -9,10 +9,11 @@
   <property name = "CONSOLE_LOG_PATTERN" value = "[%clr(%-5level)] [%d{HH:mm:ss.SSS}] [%thread] [%clr(%logger{30}){cyan}] - %msg%n"/>
   <property name = "ERROR_LOG_PATTERN" value="[%d{yyyy-MM-dd HH:mm:ss}:%-3relative] [%-5level]  %logger{35} - %msg%n"/>
   <property name = "CONTROLLER_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%-5level] %msg%n"/>
+  <property resource="slack.properties" />
+  <property name="SLACK_WEBHOOK_URI" value="${logging.slack.webhook.uri}" />
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-<!--      <pattern>%clr(%-5level) %d [%thread] %clr(%logger){cyan} - %msg%n</pattern>-->
       <pattern>${CONSOLE_LOG_PATTERN}</pattern>
     </encoder>
   </appender>
@@ -39,7 +40,7 @@
   </appender>
 
   <appender name="SLACK" class="com.github.maricn.logback.SlackAppender">
-    <webhookUri>https://hooks.slack.com/services/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</webhookUri>
+    <webhookUri>${SLACK_WEBHOOK_URI}</webhookUri>
     <channel>#error-log</channel>
     <layout class="ch.qos.logback.classic.PatternLayout">
       <pattern>${ERROR_LOG_PATTERN}</pattern>
