@@ -1,6 +1,8 @@
 package com.mapnote.mapnoteserver.domain.common.exception;
 
 import com.mapnote.mapnoteserver.domain.common.dto.ErrorResponse;
+import com.mapnote.mapnoteserver.domain.common.util.SlackUtils;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,6 +15,12 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 @ControllerAdvice
 public class ExceptionAdvice {
+
+  private final SlackUtils slackUtils;
+
+  public ExceptionAdvice(SlackUtils slackUtils) {
+    this.slackUtils = slackUtils;
+  }
 
   // @Validated - binding error
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -55,8 +63,9 @@ public class ExceptionAdvice {
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleRuntimeException(Exception e) {
+  public ResponseEntity<ErrorResponse> handleRuntimeException(HttpServletRequest req, Exception e) {
     ErrorResponse response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
+    slackUtils.sendSlackMessage(req, e);
     return ResponseEntity.internalServerError().body(response);
   }
 
