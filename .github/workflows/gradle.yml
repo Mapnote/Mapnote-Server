@@ -2,8 +2,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "develop", "feature/*" ]
-
+    branches: ["develop", "main"]
+  pull_request:
+    branches: ["develop", "main"]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,20 +20,21 @@ jobs:
           distribution: 'temurin'
       - name: Make application.properties
         run: |
-          cd ./src/main
-          mkdir resources
-          cd ./resources
+          cd ./src/main/resources
           touch ./application.yml
           echo "$APPLICATION" >> ./application.yml
-          ls -al
+          touch ./slack.properties
+          echo "$SLACK" >> ./slack.properties
         shell: bash
         env:
           APPLICATION: ${{secrets.APPLICATION}}
+          SLACK: ${{secrets.SLACK}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew build --exclude-task test
   test:
+    needs: build
     runs-on: ubuntu-latest
     services:
       redis:
@@ -46,16 +48,68 @@ jobs:
           distribution: 'temurin'
       - name: Make application.properties
         run: |
-          cd ./src/main
-          mkdir resources
-          cd ./resources
+          cd ./src/main/resources
           touch ./application.yml
           echo "$APPLICATION" >> ./application.yml
-          ls -al
+          touch ./slack.properties
+          echo "$SLACK" >> ./slack.properties
         shell: bash
         env:
           APPLICATION: ${{secrets.APPLICATION}}
+          SLACK: ${{secrets.SLACK}}
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Test with Gradle
         run: ./gradlew test
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Make application.properties
+        run: |
+          cd ./src/main/resources
+          touch ./application.yml
+          touch ./slack.properties
+          echo "$APPLICATION" >> ./application.yml
+          echo "$SLACK" >> ./slack.properties
+          ls -al
+        shell: bash
+        env:
+          APPLICATION: ${{secrets.APPLICATION}}
+          SLACK: ${{secrets.SLACK}}
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: ./gradlew build --exclude-task test
+      - name: Make docker image
+        run: |
+          docker build -t spring ./
+          docker save -o spring.tar spring
+        shell: bash
+      - name: Send Docker File
+        uses: appleboy/scp-action@master
+        with:
+          username: ec2-user
+          host: ${{secrets.DEPLOY_URL}}
+          key: ${{secrets.DEPLOY_KEY}}
+          source: "spring.tar"
+          target: "/home/ec2-user/deploy"
+  deploy:
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Service
+        uses: appleboy/ssh-action@master
+        with:
+          username: ec2-user
+          host: ${{secrets.DEPLOY_URL}}
+          key: ${{secrets.DEPLOY_KEY}}
+          script: |
+            cd ./deploy
+            ./deploy_nginx.sh
