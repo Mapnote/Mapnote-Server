@@ -110,6 +110,5 @@ jobs:
           host: ${{secrets.DEPLOY_URL}}
           key: ${{secrets.DEPLOY_KEY}}
           script: |
-            pwd
-            cd /home/ec2-user/deploy
+            cd ./deploy
             ./deploy_nginx.sh
