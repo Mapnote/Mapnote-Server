@@ -101,11 +101,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy Service
-          uses: appleboy/ssh-action@master
-          with:
-            username: ec2-user
-            host: ${{secrets.DEPLOY_URL}}
-            key: ${{secrets.DEPLOY_KEY}}
-            script: |
-              cd ./home/ec2-user/deploy
-              ls -al
+        uses: appleboy/ssh-action@master
+        with:
+          username: ec2-user
+          host: ${{secrets.DEPLOY_URL}}
+          key: ${{secrets.DEPLOY_KEY}}
+          script: |
+            cd ./home/ec2-user/deploy
+            ls -al
