@@ -60,6 +60,7 @@ jobs:
       - name: Test with Gradle
         run: ./gradlew test
   package:
+    needs: [build,test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -98,6 +99,7 @@ jobs:
           source: "spring.tar"
           target: "/home/ec2-user/deploy"
   deploy:
+    needs: package
     runs-on: ubuntu-latest
     steps:
       - name: Deploy Service
@@ -108,4 +110,4 @@ jobs:
           key: ${{secrets.DEPLOY_KEY}}
           script: |
             cd ./home/ec2-user/deploy
-            ls -al
+            ./deploy_nginx.sh
