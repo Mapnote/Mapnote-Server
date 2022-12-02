@@ -59,7 +59,7 @@ jobs:
         run: chmod +x gradlew
       - name: Test with Gradle
         run: ./gradlew test
-  deploy:
+  package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -89,7 +89,7 @@ jobs:
           docker build -t spring ./
           docker save -o spring.tar spring
         shell: bash
-      - name: Deploy Service Server
+      - name: Send Docker File
         uses: appleboy/scp-action@master
         with:
           username: ec2-user
@@ -97,3 +97,15 @@ jobs:
           key: ${{secrets.DEPLOY_KEY}}
           source: "spring.tar"
           target: "/home/ec2-user/deploy"
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Service
+          uses: appleboy/ssh-action@master
+          with:
+            username: ec2-user
+            host: ${{secrets.DEPLOY_URL}}
+            key: ${{secrets.DEPLOY_KEY}}
+            script: |
+              cd ./home/ec2-user/deploy
+              ls -al
