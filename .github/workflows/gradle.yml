@@ -33,6 +33,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build --exclude-task test
   test:
+    needs: build
     runs-on: ubuntu-latest
     services:
       redis:
@@ -60,7 +61,7 @@ jobs:
       - name: Test with Gradle
         run: ./gradlew test
   package:
-    needs: [build,test]
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -109,5 +110,6 @@ jobs:
           host: ${{secrets.DEPLOY_URL}}
           key: ${{secrets.DEPLOY_KEY}}
           script: |
-            cd ./home/ec2-user/deploy
+            pwd
+            cd /home/ec2-user/deploy
             ./deploy_nginx.sh
