@@ -51,9 +51,10 @@ public class AlarmController {
     DataResponse<AlarmResponse.FireBaseToken> response = new DataResponse<>(AlarmResponseCode.GET_FIREBASE_TOKEN, accessToken);
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
+  @Auth
   @PostMapping("")
-  public ResponseEntity<DataResponse<Void>> sendAlarm(@RequestBody AlarmRequest.CurLocation curLocation) throws IOException {
-    alarmService.pushAlarm(curLocation);
+  public ResponseEntity<DataResponse<Void>> sendAlarm(@CurrentUser CustomUserDetails user, @RequestBody AlarmRequest.CurLocation curLocation) throws IOException {
+    alarmService.pushAlarm(user,curLocation);
     DataResponse<Void> response = new DataResponse<>(AlarmResponseCode.SEND_ALARM, null);
     return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
   }
