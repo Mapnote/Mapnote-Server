@@ -99,7 +99,9 @@ public class Schedules extends BaseEntity {
   public void changeContent(String content) {
     setContent(content);
   }
-
+  public void changeAlarmStatus(AlarmStatus alarmStatus){
+    setAlarmStatus(alarmStatus);
+  }
   public void changePlace(Place place) {
     setPlace(place);
   }
@@ -112,7 +114,9 @@ public class Schedules extends BaseEntity {
   private void setContent(String content) {
     if(checkBlank(content)) this.content = content;
   }
-
+  private void setAlarmStatus(AlarmStatus alarmStatus){
+    if(!isNull(alarmStatus)) this.alarmStatus=alarmStatus;
+  }
   private void setPlace(Place place) {
     if(!isNull(place)) this.place = place;
   }
