@@ -7,11 +7,13 @@ import com.mapnote.mapnoteserver.domain.alarm.dto.AlarmRequest;
 import com.mapnote.mapnoteserver.domain.alarm.dto.AlarmResponse;
 import com.mapnote.mapnoteserver.domain.alarm.dto.FcmMessage;
 import com.mapnote.mapnoteserver.domain.alarm.util.AlarmConverter;
+import com.mapnote.mapnoteserver.domain.schedule.entity.AlarmStatus;
+import com.mapnote.mapnoteserver.domain.schedule.entity.Schedules;
 import com.mapnote.mapnoteserver.domain.schedule.repository.ScheduleRepository;
 import com.mapnote.mapnoteserver.domain.user.repository.UserRepository;
+import com.mapnote.mapnoteserver.security.CustomUserDetails;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -77,12 +79,17 @@ public class AlarmService {
         .build();
     Response response = client.newCall(request)
         .execute();
-    System.out.println(response.body().string());
   }
 
-//  public void pushAlarm(UUID uuid, AlarmRequest.CurLocation curLocation){}
-  public void pushAlarm(AlarmRequest.CurLocation curLocation) throws IOException {
-    sendMessageTo(curLocation.getToken(),"test","test");
+  public void pushAlarm(CustomUserDetails user, AlarmRequest.CurLocation curLocation) throws IOException {
+    List<Schedules> schedules=scheduleRepository.findByRadius(user.getId(),
+        curLocation.getLatitude(), curLocation.getLongitude());
+    for(Schedules schedule: schedules){
+      schedule.setAlarmStatus(AlarmStatus.CRY);
+      scheduleRepository.save(schedule);
+      String body="근처에 "+schedule.getPlace().getName()+" 스케줄이 예정되어 있어요!";
+      sendMessageTo(curLocation.getToken(),"Mapnote",body);
+    }
   }
 
 
